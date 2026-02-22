@@ -56,7 +56,7 @@ Conversation history per case.
 
 ---
 
-## 2) In‑Memory Caches
+## 2) In‑Memory Caches(to be updated: use redis)
 
 **Location**: `app/api/routes.py` (module globals)
 
