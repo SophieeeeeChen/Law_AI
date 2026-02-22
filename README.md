@@ -33,12 +33,14 @@ Relational Mapping: Each node maintains a pointer to the Full Case Text.
 
 Context Expansion: Users can instantly jump from a specific "Rationale" chunk to the complete AustLII judgment to verify the legal context.
 
-Python
-# Example of your targeted retrieval logic
-results = vector_db.query(
-    query_text="Section 79 property settlement",
-    where={"section": "property_division"}  # This is the "secret sauce"
-)
+⚖️ Deep Dive: Rationale & Impact Analysis
+To move beyond basic keyword matching, the pipeline specifically isolates judicial reasoning:
+
+Reasons & Rationales: The system extracts the "Ratio Decidendi" (the legal principle behind the decision). This ensures that when a user asks "Why?", the RAG retrieves the judge's logic rather than just the final result.
+
+Impact Analysis: By chunking the specific impacts of a case, the system can perform comparative analysis. This allows the AI to explain how a past property split might impact a current user's unique financial situation.
+
+Data Engineer's Perspective: This is implemented as a Directed Retrieval strategy. By tagging chunks with "Impact" vs "Rationale" metadata, we prevent the LLM from hallucinating orders as if they were reasons, significantly increasing the Faithfulness metric in our RAGAS evaluation.
 
 ## Structure
 
