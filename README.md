@@ -1,46 +1,44 @@
-# Law AI Backend — Project Structure
-🚀 High-Lighted Feature: "Legal-Context Segmented RAG"
-Unlike standard RAG that chunks text blindly, this project uses a Structure-Aware Retrieval system specifically designed for Australian Family Law (AustLII cases).
+# ⚖️ Law AI Backend — Project Structure
 
-1. Semantic Pre-Processing
+## 🚀 High-Lighted Feature: "Legal-Context Segmented RAG"
+Unlike standard RAG that chunks text blindly, this project uses a **Structure-Aware Retrieval** system specifically designed for Australian Family Law (AustLII cases).
+
+### 1. Semantic Pre-Processing
 Each AustLII case and uploaded document is parsed and categorized into four critical legal domains:
 
-Property Division: Financial settlements and asset splits.
+* **Property Division:** Financial settlements and asset splits.
+* **Child Parenting:** Custody, living arrangements, and welfare.
+* **Spousal Maintenance:** Ongoing financial support post-separation.
+* **Family Violence & Safety:** Relevant safety orders and risk assessments.
+* **Prenup & Postnup:** Pre/post-nuptial agreement legalities.
+* **Outcome Orders:** The final binding orders made by the court.
+* **Reasons & Rationales:** The judicial logic and precedents applied.
 
-Child Parenting: Custody, living arrangements, and welfare.
+---
 
-spousal_maintenance
+### 2. Segmented Vector Search
+When a user asks a question, they select a **Focus Section**.
 
-family_violence_safety
+* **Targeted Retrieval:** The system restricts the vector search to the selected metadata category (e.g., searching only within `property_division` chunks).
+* **High Precision:** This eliminates "noise" from other parts of the case that might contain similar keywords but different legal contexts.
 
-prenup_postnup: Pre/post-nuptial agreement
+---
 
-Outcome Orders: The final binding orders made by the court.
+### 3. Full-Text Traceability
+Every retrieved chunk acts as a **"Smart Node."**
 
-Reasons & Rationales: The judicial logic and precedents applied.
+* **Relational Mapping:** Each node maintains a pointer to the Full Case Text.
+* **Context Expansion:** Users can instantly jump from a specific "Rationale" chunk to the complete AustLII judgment to verify the legal context.
 
-2. Segmented Vector Search
-When a user asks a question, they select a Focus Section.
+---
 
-Targeted Retrieval: The system restricts the vector search to the selected metadata category (e.g., searching only within property_division chunks).
-
-High Precision: This eliminates "noise" from other parts of the case that might contain similar keywords but different legal contexts.
-
-3. Full-Text Traceability
-Every retrieved chunk acts as a "Smart Node."
-
-Relational Mapping: Each node maintains a pointer to the Full Case Text.
-
-Context Expansion: Users can instantly jump from a specific "Rationale" chunk to the complete AustLII judgment to verify the legal context.
-
-⚖️ Deep Dive: Rationale & Impact Analysis
+## 🔬 Deep Dive: Rationale & Impact Analysis
 To move beyond basic keyword matching, the pipeline specifically isolates judicial reasoning:
 
-Reasons & Rationales: The system extracts the "Ratio Decidendi" (the legal principle behind the decision). This ensures that when a user asks "Why?", the RAG retrieves the judge's logic rather than just the final result.
+* **Reasons & Rationales:** The system extracts the ***Ratio Decidendi*** (the legal principle behind the decision). This ensures that when a user asks "Why?", the RAG retrieves the judge's logic rather than just the final result.
+* **Impact Analysis:** By chunking the specific impacts of a case, the system can perform comparative analysis. This allows the AI to explain how a past property split might impact a current user's unique financial situation.
 
-Impact Analysis: By chunking the specific impacts of a case, the system can perform comparative analysis. This allows the AI to explain how a past property split might impact a current user's unique financial situation.
-
-Data Engineer's Perspective: This is implemented as a Directed Retrieval strategy. By tagging chunks with "Impact" vs "Rationale" metadata, we prevent the LLM from hallucinating orders as if they were reasons, significantly increasing the Faithfulness metric in our RAGAS evaluation.
+> **💡 Data Engineer's Perspective:** This is implemented as a **Directed Retrieval** strategy. By tagging chunks with "Impact" vs "Rationale" metadata, we prevent the LLM from hallucinating orders as if they were reasons, significantly increasing the **Faithfulness** metric in our RAGAS evaluation.
 
 ## Structure
 
