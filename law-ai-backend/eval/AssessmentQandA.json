@@ -1,0 +1,602 @@
+[
+  {
+    "filename": "[2008] FamCAFC 142.txt",
+    "classification": "children_parenting",
+    "question": "Given three children aged 11, 9, and 5; 2005 consent orders with shared care (8 nights per fortnight with the mother, 6 with the father); the mother seeking to relocate from Sydney to Melbourne to live with her new husband; the father opposing relocation; equal shared parental responsibility proposed; the mother able to return to Sydney during alternate weeks and holidays if required; and no specific safety concerns or child views recorded, how did the Full Court decide the mother's appeal about relocation and parenting arrangements?",
+    "ground_truth": "The appeal was dismissed; relocation was refused and the trial orders remained, with the children staying in Sydney and time with the mother as ordered; the wife was ordered to pay the husband's appeal costs."
+  },
+  {
+    "filename": "[2008] FamCAFC 16.txt",
+    "classification": "children_parenting",
+    "question": "Given children aged about 13 and 10; 2003 final orders for them to live with the mother in Darwin with the father spending 4 days per fortnight and half school holidays; the father later seeking equal shared care or increased time; a 2007 Family Report recommending more time with the father but not equal shared care and noting the children's wishes; and no specific safety concerns recorded, how did the Full Court decide the father's appeal?",
+    "ground_truth": "The appeal was allowed; the 2007 orders dismissing the father's application were set aside and the matter was remitted for rehearing before a different magistrate."
+  },
+  {
+    "filename": "[2008] FamCAFC 193.txt",
+    "classification": "property_division",
+    "question": "In a short marriage (Jan 2000 to June 2005) with one child (born 2001) primarily cared for by the wife post-separation, asset pool about $555,775 largely acquired by the husband before marriage (home and investment unit), the wife owning little at marriage, husband disabled and on pension, wife in good health but with language difficulties and child-care responsibilities, and no binding financial agreement, how did the Full Court decide the husband's appeal against property settlement orders (wife 25% including a s75(2) adjustment)?",
+    "ground_truth": "Appeal dismissed; property orders upheld with the wife receiving 25% of the pool (about $139,390) and the husband 75%."
+  },
+  {
+    "filename": "[2008] FamCAFC 29.txt",
+    "classification": "spousal_maintenance",
+    "question": "For an interim spousal maintenance dispute where the parties married in 1985, the husband was 79, retired with about $69 per week pension income and no earning capacity, the wife was 65 and in full employment as a judicial officer, the husband had already received interim property payments (about $27,470) and sought $984 per week, and health or standard-of-living factors were not central, how did the Full Court decide the appeal?",
+    "ground_truth": "Leave to appeal was granted but the spousal maintenance order was effectively upheld; the appeal succeeded only in setting aside the injunction restraining the wife from being within 100 meters of a third party's property, with no costs order."
+  },
+  {
+    "filename": "[2008] FamCAFC 67.txt",
+    "classification": "children_parenting",
+    "question": "In parenting proceedings for a 10-year-old child (P), where P had lived with the mother since early 2006 with the father having daytime Sunday contact, the father sought residence or more time and sought to discharge the agreed single expert and adduce a new expert report, and no specific safety concerns or child views were recorded in the leave application, how did the Full Court decide the application for leave to appeal?",
+    "ground_truth": "Leave to appeal was refused; the orders refusing to discharge the single expert and to allow another expert report remained, and the father was ordered to pay costs."
+  },
+  {
+    "filename": "[2009] FamCAFC 104.txt",
+    "classification": "property_division",
+    "question": "In a property matter with real estate in Melbourne net about $200,000 and funds in India about $500,000 ordered to be repatriated and divided, where the wife sought a stay pending special leave to the High Court citing intended return to India, medical condition, and alleged nondisclosure, and no binding financial agreement was noted, how did the Full Court decide the stay application?",
+    "ground_truth": "The stay was dismissed and the Full Court's property orders remained in effect; the wife was ordered to pay the husband's costs."
+  },
+  {
+    "filename": "[2009] FamCAFC 106.txt",
+    "classification": "children_parenting",
+    "question": "In a parenting dispute involving a 3-year-old child conceived by artificial conception in a former same-sex relationship, where orders provided the respondent non-parent time increasing from 3 hours each Saturday to overnight every third weekend, the mother sought a stay (or reduced time) pending her appeal, prior contact included visits and some overnights, and no specific safety findings or child views were recorded, how did the Full Court decide the stay appeal?",
+    "ground_truth": "The appeal against the refusal to stay was dismissed; the parenting orders continued and costs were reserved for the substantive appeal."
+  },
+  {
+    "filename": "[2009] FamCAFC 115.txt",
+    "classification": "children_parenting",
+    "question": "For a nearly 2-year-old child, with consent orders providing the father time on Tuesdays, alternate weekends, and a Thursday overnight, the mother was the primary carer and sought to relocate to New Zealand, the father worked full time and sought substantial or significant time, and no safety concerns or child views were recorded, how did the Full Court decide the mother's appeal against the refusal to allow international relocation?",
+    "ground_truth": "The appeal was dismissed; the relocation proposal remained refused and the parenting orders stood (with a minor consent variation for Mother's Day) and no order as to costs."
+  },
+  {
+    "filename": "[2009] FamCAFC 131.txt",
+    "classification": "spousal_maintenance",
+    "question": "Where interim spousal maintenance orders required the husband to pay $650 per week and a $43,000 lump sum (reducible if furniture delivered), the parties were aged 41 and 34 with a 4-year-old child living with the husband in Poland, the marriage lasted from 2005 to 2008 after cohabitation from 2003, the husband claimed unemployment and inability to pay, and no special health issues were central, how did the Full Court decide the husband's appeal against refusal of a stay?",
+    "ground_truth": "The stay appeal was dismissed; the interim maintenance orders remained and the husband was ordered to pay the wife's appeal costs."
+  },
+  {
+    "filename": "[2009] FamCAFC 166.txt",
+    "classification": "property_division",
+    "question": "In property proceedings where the asset pool was disputed (husband said about $60-80 million, wife contended hundreds of millions), the wife had about $6.7 million in accounts at separation but had spent heavily on legal costs, the husband had very high income and substantial assets, and the wife sought an interim property order to fund litigation expenses with no binding financial agreement, how did the Full Court decide the appeal about the interim property order?",
+    "ground_truth": "The appeal was allowed; the trial order was set aside and the husband was ordered to pay the wife $5 million by way of interim property settlement."
+  },
+  {
+    "filename": "[2009] FamCAFC 179.txt",
+    "classification": "property_division",
+    "question": "In a property matter where the wife sought leave under s44(3) to commence property proceedings out of time, the property application was raised in a response to the husband's parenting application, and the issue was whether leave was required under s44(2) and whether hardship was the correct test, how did the Full Court decide the wife's appeal and the husband's cross-appeal?",
+    "ground_truth": "Leave to appeal was granted and the appeal allowed; the order dismissing the wife's application was set aside, it was held leave was not required under s44(2), and the property proceedings were remitted for rehearing; the husband's cross-appeal on costs was dismissed and costs certificates were granted."
+  },
+  {
+    "filename": "[2009] FamCAFC 229.txt",
+    "classification": "children_parenting",
+    "question": "In a parenting dispute involving a child conceived by artificial insemination in a former same-sex relationship, where the applicant had no biological connection and was not found to be a parent, the child was nearly three, and the primary orders provided the mother sole parental responsibility with the child spending graduated time with the applicant, how did the Full Court decide the mother's appeal against those parenting orders?",
+    "ground_truth": "The appeal was dismissed; the parenting orders allowing the child to spend time with the non-biological applicant were upheld, with costs submissions reserved."
+  },
+  {
+    "filename": "[2009] FamCAFC 45.txt",
+    "classification": "spousal_maintenance",
+    "question": "For an interim spousal maintenance dispute where the parties married in 1979 and separated in 2008, the wife had not worked for many years and lived in rental accommodation, the husband controlled investment properties and was ordered to pay $905 per week (partly via rental income), and no safety issues were raised, how did the Full Court decide the husband's application for leave to appeal?",
+    "ground_truth": "The husband's application for leave to appeal was dismissed and the interim maintenance order stood; the husband was ordered to pay the wife's costs."
+  },
+  {
+    "filename": "[2009] FamCAFC 6.txt",
+    "classification": "property_division",
+    "question": "In a property case with a net pool around $4.6m where the trial judge misrecorded agreed asset values, did not deal with trust losses, and also made a lump sum spousal maintenance order of $40,000, and where there were disputes about restaurant losses and contribution assessment, how did the Full Court decide the husband's appeal?",
+    "ground_truth": "The appeal was allowed; errors in the asset pool and failure to address trust losses were appealable, the property and maintenance orders were set aside, and the matter was remitted for rehearing."
+  },
+  {
+    "filename": "[2009] FamCAFC 92.txt",
+    "classification": "children_parenting",
+    "question": "In an international relocation case where a four-year-old child was living with the mother in Dubai, the father sought the child's return to Brisbane, the UAE was not a Hague Convention country, and the Federal Magistrate ordered the child live with the mother in Dubai with limited time for the father, how did the Full Court decide the father's appeal?",
+    "ground_truth": "The appeal was allowed; the orders were set aside and the matter remitted for rehearing, with costs certificates granted."
+  },
+  {
+    "filename": "[2010] FamCAFC 101.txt",
+    "classification": "children_parenting",
+    "question": "In interim parenting proceedings for a child aged 11 with a developmental disability, where the interim orders focused on the time the child should spend with the father and whether supervision was needed, and the trial judge failed to consider the s61DA presumption, how did the Full Court resolve the appeal?",
+    "ground_truth": "The appeal was allowed; the interim orders were set aside and the judicial registrar's interim orders were reinstated, with no order as to costs."
+  },
+  {
+    "filename": "[2010] FamCAFC 111.txt",
+    "classification": "children_parenting",
+    "question": "In a relocation dispute involving two children aged about 10 and 7, where the mother sought to relocate from Wollongong to Victoria, equal shared parental responsibility was ordered, and the children were to live with the mother and spend time with the father in school holidays and a term-time weekend, how did the Full Court decide the father's appeal?",
+    "ground_truth": "The appeal was dismissed and the relocation and parenting orders were upheld; the father was ordered to pay the mother's appeal costs."
+  },
+  {
+    "filename": "[2010] FamCAFC 120.txt",
+    "classification": "property_division",
+    "question": "In property proceedings with a pool valued around $1.32m, where the trial judge assessed contributions at 66/34, made a 12% s75(2) adjustment and a further justice-and-equity adjustment, and both parties appealed those assessments, how did the Full Court decide the property appeals?",
+    "ground_truth": "The appeal and cross-appeal on property were allowed; the orders were set aside and the property (and related child support) matters were remitted for rehearing."
+  },
+  {
+    "filename": "[2010] FamCAFC 13.txt",
+    "classification": "children_parenting",
+    "question": "In an interim parenting case where the children were about 15 and 11 and expressed strong wishes not to see their mother, the trial judge suspended the mother's time and prevented her from initiating contact, how did the Full Court decide the mother's appeals?",
+    "ground_truth": "The appeals were dismissed and the interim orders were upheld, with costs submissions to be filed if sought."
+  },
+  {
+    "filename": "[2010] FamCAFC 30.txt",
+    "classification": "property_division",
+    "question": "In a property settlement where the trial judge did not include the husband's interest in a family trust (valued at about $62.75m) in the asset pool and divided an $8.64m pool 80/20 to the wife, how did the Full Court decide the appeal and cross-appeal?",
+    "ground_truth": "Both the appeal and cross-appeal were allowed; the orders were set aside and the matter was remitted for rehearing because the trust interest should have been treated as property."
+  },
+  {
+    "filename": "[2010] FamCAFC 33.txt",
+    "classification": "property_division",
+    "question": "In a property case with a pool about $938,665, contributions assessed at 52/48, and a 10% s75(2) adjustment in the wife's favor (with two youngest children living mainly with the wife), how did the Full Court resolve the husband's appeal about the s75(2) adjustment?",
+    "ground_truth": "The appeal was allowed; the s75(2) adjustment was reduced to 4%, resulting in a 61%/39% split of sale proceeds to the wife and husband, respectively, with no order as to costs."
+  },
+  {
+    "filename": "[2010] FamCAFC 37.txt",
+    "classification": "children_parenting",
+    "question": "In a same-sex parenting dispute where two children (about 10 and 11) each had a different biological mother, the parties separated and one child moved to Sydney with her mother, and orders were made for each child to live with her biological mother and spend time with the other household, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was dismissed and the parenting orders were upheld; the appellant was ordered to pay the respondent's costs."
+  },
+  {
+    "filename": "[2010] FamCAFC 53.txt",
+    "classification": "children_parenting",
+    "question": "In final parenting orders for a four-year-old who was living month-about with each parent in different countries, where the trial judge relied heavily on a family consultant and the mother challenged the findings and the application of s60CC and s65DAA, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was allowed; the orders were set aside and the matter was remitted for rehearing with a recommendation for expedition, and costs certificates were granted."
+  },
+  {
+    "filename": "[2011] FamCAFC 129.txt",
+    "classification": "prenup_postnup",
+    "question": "Where divorced parties signed a financial agreement mislabeled as a s90C agreement and the solicitor certificates misnamed the parties, and the trial judge declared the agreement binding, how did the Full Court decide the appeal about the binding financial agreement?",
+    "ground_truth": "The appeal was allowed; the order was set aside and the matter was remitted to determine whether the agreement could be declared binding under s90G(1A) and (1B), with costs certificates granted."
+  },
+  {
+    "filename": "[2011] FamCAFC 150.txt",
+    "classification": "property_division",
+    "question": "In a property case where the husband sought leave under s44(3) to commence s79 proceedings out of time after divorce and a prior bankruptcy, how did the Full Court decide the wife's appeal against the grant of leave?",
+    "ground_truth": "Leave to appeal was granted and the appeal allowed; the husband's s44(3) application was dismissed and a costs certificate was granted to the wife."
+  },
+  {
+    "filename": "[2011] FamCAFC 159.txt",
+    "classification": "children_parenting",
+    "question": "In parenting proceedings where a family counselling service was subpoenaed to produce counselling notes and the parties had consented to disclosure, but the service objected and argued s10D/s10E limits applied, how did the Full Court resolve the appeal about the subpoena?",
+    "ground_truth": "Leave to appeal was granted and the appeal allowed; the production order was discharged and the subpoena set aside, with costs certificates granted."
+  },
+  {
+    "filename": "[2011] FamCAFC 202.txt",
+    "classification": "property_division",
+    "question": "In a de facto property case where the parties agreed they had two separate periods of de facto relationship (1994-1998 and 2008-2009), and the issue was whether those periods could be aggregated to reach the two-year threshold under s90RD/s90SB, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was dismissed; the declaration that the periods could be aggregated to meet the two-year threshold was upheld, with no costs order."
+  },
+  {
+    "filename": "[2011] FamCAFC 210.txt",
+    "classification": "prenup_postnup",
+    "question": "In enforcement of a binding financial agreement where the husband argued it was impracticable to carry out and sought to set it aside (or sever clauses), and sought to adduce further evidence, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal and the application to adduce further evidence were dismissed; the agreement remained enforceable and the husband was ordered to pay the wife's costs."
+  },
+  {
+    "filename": "[2011] FamCAFC 38.txt",
+    "classification": "property_division",
+    "question": "In property settlement where the Federal Magistrate miscalculated assets and liabilities and erred in assessing the husband's initial non-financial contributions, how did the Full Court decide the appeal and what was the resulting order?",
+    "ground_truth": "The appeal was allowed; the orders were set aside and replaced with directions for sale of the former matrimonial home and a split of proceeds 42.71% to the wife and 57.29% to the husband, with each retaining specified personal assets."
+  },
+  {
+    "filename": "[2011] FamCAFC 5.txt",
+    "classification": "children_parenting",
+    "question": "In a relocation matter where the mother was permitted to relocate a child (aged just under three) to Ireland and the father sought a stay pending appeal, how did the Full Court decide the stay appeal?",
+    "ground_truth": "The appeal against the refusal of the stay was dismissed; the relocation orders remained in effect and the substantive appeal was expedited, with no order as to costs."
+  },
+  {
+    "filename": "[2011] FamCAFC 50.txt",
+    "classification": "children_parenting",
+    "question": "In a case about authorising treatment for gender identity disorder where the subject child turned 18 before the notice of appeal was filed, and the appeal challenged jurisdiction to make/maintain orders under s67ZC, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was dismissed as the Court lacked jurisdiction once the subject was over 18; no costs order was made."
+  },
+  {
+    "filename": "[2012] FamCAFC 132.txt",
+    "classification": "property_division",
+    "question": "In a property appeal involving a Defence Force Retirement and Death Benefits (DFRDB) entitlement treated as superannuation property, where the entitlement is a non-commutable income stream, the parties opposed splitting, and the Federal Magistrate effectively double-counted it in the pool and s75(2) adjustments, how did the Full Court decide?",
+    "ground_truth": "The appeal was allowed; the property orders were set aside and the matter remitted for rehearing, with costs certificates granted."
+  },
+  {
+    "filename": "[2012] FamCAFC 200.txt",
+    "classification": "property_division",
+    "question": "In an appeal about whether parties were in a de facto relationship (s4AA) for jurisdiction under s90RD, where the trial judge declined to declare a de facto relationship and the appellant sought a declaration covering 1996\u20132009, how did the Full Court decide?",
+    "ground_truth": "The appeal was dismissed and the refusal to declare a de facto relationship was upheld, with no order as to costs."
+  },
+  {
+    "filename": "[2012] FamCAFC 209.txt",
+    "classification": "children_parenting",
+    "question": "In a relocation dispute with two fathers and equal shared parental responsibility orders, where the Federal Magistrate treated the relocation request as the primary issue and did not follow the s65DAA pathway for equal/substantial time, how did the Full Court decide the mother's appeal?",
+    "ground_truth": "The appeal was allowed; the parenting orders were set aside and the matter remitted for rehearing (further evidence application dismissed), with costs certificates granted."
+  },
+  {
+    "filename": "[2012] FamCAFC 22.txt",
+    "classification": "property_division",
+    "question": "In property and maintenance appeals where the trial judge ordered a 60/40 split in the wife\u2019s favour and dismissed her periodic and lump-sum spousal maintenance, with the husband having sole care of the child since 2009 and the wife alleging poor health and inability to work, how did the Full Court decide?",
+    "ground_truth": "The appeals were dismissed and the property split and refusal of spousal maintenance were upheld, with no order as to costs."
+  },
+  {
+    "filename": "[2012] FamCAFC 69.txt",
+    "classification": "children_parenting",
+    "question": "In parenting and property orders where the Federal Magistrate relied on academic literature about alienation without notice to the parties and limited evidence of the children\u2019s views, and ordered the children live with the mother plus a 65/35 property split, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was allowed; both parenting and property orders were set aside and remitted for rehearing, with interim orders continued and costs certificates granted."
+  },
+  {
+    "filename": "[2013] FamCAFC 109.txt",
+    "classification": "prenup_postnup",
+    "question": "In a pre-marriage s90B financial agreement where the trial judge made conflicting declarations about whether the agreement was binding, and both husband and wife appealed the s90G findings, how did the Full Court resolve the appeals?",
+    "ground_truth": "Both appeals were allowed; the declarations were set aside and the matter remitted for rehearing before another judge."
+  },
+  {
+    "filename": "[2013] FamCAFC 116.txt",
+    "classification": "property_division",
+    "question": "In a long-separated marriage (about 18 years) where the husband told the wife she could retain assets and the trial judge still found it just and equitable to make property orders, how did the Full Court deal with the appeal?",
+    "ground_truth": "The appeal was stood over for further submissions on redetermination; no final redetermination was made in the orders, with submissions ordered."
+  },
+  {
+    "filename": "[2013] FamCAFC 132.txt",
+    "classification": "property_division",
+    "question": "In a de facto jurisdiction case where the Federal Magistrate declared no de facto relationship because it was not existing as at 1 March 2009, despite evidence of a later relationship that ended after commencement, how did the Full Court decide?",
+    "ground_truth": "The appeal was allowed; the declaration was set aside and the matter remitted for rehearing, with costs certificates granted."
+  },
+  {
+    "filename": "[2013] FamCAFC 142.txt",
+    "classification": "spousal_maintenance",
+    "question": "In a child support departure case where the father sought to discharge orders requiring weekly child support plus private school fees, alleging a dramatic reduction in income and assets, how did the Full Court decide the appeal?",
+    "ground_truth": "Leave was granted and the appeal allowed in part; key orders were set aside and the matter remitted for rehearing, with no costs order and costs certificates granted."
+  },
+  {
+    "filename": "[2013] FamCAFC 151.txt",
+    "classification": "prenup_postnup",
+    "question": "In a s90C financial agreement dispute where the wife alleged she did not receive requisite legal advice and the Federal Magistrate placed the onus on her, how did the Full Court decide the appeal following Hoult & Hoult?",
+    "ground_truth": "The appeal was allowed; the order was set aside and the matter remitted for rehearing, with costs certificates granted."
+  },
+  {
+    "filename": "[2013] FamCAFC 180.txt",
+    "classification": "children_parenting",
+    "question": "After the father\u2019s death, a parenting order placed a child with the paternal aunt in France and gave her sole parental responsibility; the step-mother appealed, arguing s60CC(2)(a) was wrongly applied to non-parents. How did the Full Court decide?",
+    "ground_truth": "The step-mother\u2019s appeal was allowed; the parenting orders were set aside and remitted for rehearing, while the aunt\u2019s stay appeal was dismissed."
+  },
+  {
+    "filename": "[2013] FamCAFC 183.txt",
+    "classification": "property_division",
+    "question": "In a consent-order application during an intact marriage seeking to transfer the family home into joint names for stamp duty reasons, with no current case and incomplete independent legal advice section, how did the Full Court decide the appeal from the refusal to make the consent order?",
+    "ground_truth": "The appeal was dismissed; the refusal to make the consent order was upheld."
+  },
+  {
+    "filename": "[2013] FamCAFC 202.txt",
+    "classification": "property_division",
+    "question": "In a de facto property dispute where the respondent alleged a de facto relationship and obtained an interim injunction preventing eviction, before jurisdictional facts were determined, how did the Full Court decide the appeal about jurisdiction to grant the injunction?",
+    "ground_truth": "Leave to appeal was granted and the appeal allowed; the interim orders were set aside and the applications dismissed, with costs certificates granted."
+  },
+  {
+    "filename": "[2013] FamCAFC 205.txt",
+    "classification": "property_division",
+    "question": "In a property settlement appeal concerning superannuation where the trial judge gave the husband a 2/3 share of superannuation based on investment skill and \u2018special contributions,\u2019 how did the Full Court decide?",
+    "ground_truth": "The appeal and cross-appeal were allowed; the orders were set aside and the matter remitted for rehearing."
+  },
+  {
+    "filename": "[2013] FamCAFC 39.txt",
+    "classification": "property_division",
+    "question": "In proceedings to rectify a family deed involving property interests, where accrued jurisdiction and equity (imperfect gift) were in issue, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was allowed; the orders were set aside and the first respondent was ordered to pay costs."
+  },
+  {
+    "filename": "[2013] FamCAFC 47.txt",
+    "classification": "children_parenting",
+    "question": "In a jurisdiction dispute where parenting proceedings were on foot in Australia and England, and the trial judge applied an incorrect forum test, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was dismissed, but the Full Court clarified the correct jurisdictional approach with the child\u2019s best interests as the paramount consideration in determining whether to accept jurisdiction."
+  },
+  {
+    "filename": "[2014] FamCAFC 127.txt",
+    "classification": "children_parenting",
+    "question": "In a relocation case where the mother sought to move a young child from Perth to the Pilbara, the father had limited time with no overnights, and the magistrate focused mainly on meaningful relationship without evaluating both proposals, how did the Full Court decide?",
+    "ground_truth": "The appeal was allowed; orders were set aside and the matter remitted for rehearing, with costs certificates granted."
+  },
+  {
+    "filename": "[2014] FamCAFC 152.txt",
+    "classification": "spousal_maintenance",
+    "question": "In adult child maintenance orders requiring a father to pay weekly maintenance, private health insurance, and a lump sum for a car and house services until tertiary education completed, how did the Full Court decide the appeal and cross-appeal?",
+    "ground_truth": "The appeal was allowed in part; all orders were set aside and the matter remitted for rehearing, while the cross-appeal was dismissed, with costs certificates granted."
+  },
+  {
+    "filename": "[2014] FamCAFC 189.txt",
+    "classification": "prenup_postnup",
+    "question": "In accrued-jurisdiction litigation involving a financial agreement and claims against solicitors and counsel, where the trial judge held the Family Court could hear all claims, how did the Full Court decide the appeal?",
+    "ground_truth": "Leave to appeal was granted but the appeal was dismissed; the trial judge\u2019s jurisdictional ruling was upheld."
+  },
+  {
+    "filename": "[2014] FamCAFC 19.txt",
+    "classification": "property_division",
+    "question": "In a property case where the husband had long represented the wife could keep all Australian property, delayed proceedings near limitation, and all property was in the wife\u2019s name, how did the Full Court re-exercise discretion after finding error at trial?",
+    "ground_truth": "The appeal was allowed and, on re-exercise, the husband\u2019s property application was dismissed as it was not just and equitable to alter existing interests; costs certificates were granted."
+  },
+  {
+    "filename": "[2014] FamCAFC 92.txt",
+    "classification": "property_division",
+    "question": "In a property settlement of a long marriage where the pool was about $10m and the husband appealed a 50:50 split alleging special contributions, how did the Full Court decide?",
+    "ground_truth": "The appeal was dismissed; the equal division stood and the husband was ordered to pay the wife\u2019s appeal costs (with costs of a separate appeal reserved)."
+  },
+  {
+    "filename": "[2015] FamCAFC 104.txt",
+    "classification": "children_parenting",
+    "question": "In interim relocation orders requiring a mother to return children to the father\u2019s town, where no parental responsibility order was made and s61DA/s65DAA were not addressed, how did the Full Court decide the mother\u2019s appeal?",
+    "ground_truth": "The appeal was allowed; the interim orders were set aside and the competing parenting applications were remitted for rehearing, with costs certificates granted."
+  },
+  {
+    "filename": "[2015] FamCAFC 146.txt",
+    "classification": "children_parenting",
+    "question": "In final parenting orders where the father was ordered to spend no time or communicate with the child, and the trial judge\u2019s reasons did not adequately explain the balance of best-interests factors against perceived risk, how did the Full Court decide?",
+    "ground_truth": "The appeal was allowed; the orders were set aside and the matter remitted for rehearing before a different judge, with costs certificates granted."
+  },
+  {
+    "filename": "[2015] FamCAFC 221.txt",
+    "classification": "prenup_postnup",
+    "question": "Where a creditor sought to set aside a financial agreement under s90K after a party\u2019s bankruptcy, and the issues were creditor standing and the scope of s90K(3), how did the Full Court decide the appeal and cross-appeal?",
+    "ground_truth": "Both appeal and cross-appeal were dismissed; the creditor had standing only under s90K(1)(aa) and the primary judge\u2019s approach was upheld, with costs orders made."
+  },
+  {
+    "filename": "[2015] FamCAFC 224.txt",
+    "classification": "prenup_postnup",
+    "question": "In interlocutory proceedings where a de facto financial agreement\u2019s validity and de facto status were in dispute and asset-preservation orders were made, how did the Full Court decide the appeal about jurisdiction to make those orders?",
+    "ground_truth": "The appeal was dismissed; the court had power to make interim asset-preservation orders pending determination, and the appellant was ordered to pay costs."
+  },
+  {
+    "filename": "[2015] FamCAFC 241.txt",
+    "classification": "prenup_postnup",
+    "question": "Where de facto parties executed a single agreement purporting to be under both Part VIIIA and Part VIIIAB (engaged but never married), and the appellant argued non-compliance with s90UJ and improper form, how did the Full Court decide?",
+    "ground_truth": "The appeal was dismissed; no error was shown and the agreement was held binding, with costs to the respondent."
+  },
+  {
+    "filename": "[2015] FamCAFC 69.txt",
+    "classification": "property_division",
+    "question": "In a de facto property claim by an undischarged bankrupt where the primary judge summarily dismissed for lack of substantial contributions and no jurisdiction, how did the Full Court deal with the application for leave to appeal?",
+    "ground_truth": "Leave to appeal was dismissed; no substantial error was shown and there was no order as to costs."
+  },
+  {
+    "filename": "[2015] FamCAFC 76.txt",
+    "classification": "spousal_maintenance",
+    "question": "In a child support departure appeal where the FCCA set aside a tribunal decision without properly applying s117 requirements, how did the Full Court decide the Registrar\u2019s appeal?",
+    "ground_truth": "Leave was granted and the appeal allowed; the FCCA orders were set aside, with each party bearing their own costs and a costs certificate to the father."
+  },
+  {
+    "filename": "[2015] FamCAFC 94.txt",
+    "classification": "property_division",
+    "question": "In proceedings where the Family Court of Western Australia granted an anti-suit injunction restraining a husband from pursuing Singapore proceedings while property and deed-set-aside claims were pending in WA, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was dismissed; the FCWA had power to grant the anti-suit injunction and exercised it properly."
+  },
+  {
+    "filename": "[2016] FamCAFC 10.txt",
+    "classification": "children_parenting",
+    "question": "Where the mother appealed consent parenting orders (alleging coercion), appealed surname orders, and sought leave to appeal interim property orders, how did the Full Court decide?",
+    "ground_truth": "All parenting appeals were dismissed and leave to appeal the interim property order was refused; each party bore their own costs."
+  },
+  {
+    "filename": "[2016] FamCAFC 100.txt",
+    "classification": "family_violence_safety",
+    "question": "In interim parenting proceedings involving allegations of family violence where supervised time was removed and s61DA(3) was not properly applied, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was allowed; the interim orders were set aside and the matter remitted for rehearing with interim orders in place, and costs certificates granted."
+  },
+  {
+    "filename": "[2016] FamCAFC 104.txt",
+    "classification": "property_division",
+    "question": "In property settlement where the trial judge refused to deduct corporate future tax liabilities and then erred in the s79(4)(e) assessment, how did the Full Court resolve the appeal?",
+    "ground_truth": "The appeal was allowed and the Full Court re-exercised discretion, adjusting the orders to a 55/45 split (husband 55%); costs certificates were granted."
+  },
+  {
+    "filename": "[2016] FamCAFC 152.txt",
+    "classification": "children_parenting",
+    "question": "In a relocation case with a coercive order requiring the mother to live within a specified radius and where the trial judge failed to consider alternatives and risk factors, how did the Full Court decide?",
+    "ground_truth": "The appeal was allowed; the coercive relocation orders were set aside and the matter remitted for rehearing, with costs certificates granted."
+  },
+  {
+    "filename": "[2016] FamCAFC 153.txt",
+    "classification": "children_parenting",
+    "question": "Where great-grandparents sought time with great-grandchildren after a prior standing refusal and the primary judge dismissed their application and made a vexatious proceedings order, how did the Full Court decide?",
+    "ground_truth": "The appeal was dismissed; the orders were upheld and indemnity costs were ordered against the appellants."
+  },
+  {
+    "filename": "[2016] FamCAFC 214.txt",
+    "classification": "prenup_postnup",
+    "question": "In an appeal where a s90C binding financial agreement was set aside under s90K(1)(d) and interim spousal maintenance was ordered, how did the Full Court decide?",
+    "ground_truth": "The appeal was allowed; the BFA set-aside was reversed and the wife\u2019s s90K(1)(d) application dismissed, while the interim spousal maintenance order was set aside and remitted for rehearing; costs certificates granted."
+  },
+  {
+    "filename": "[2016] FamCAFC 240.txt",
+    "classification": "children_parenting",
+    "question": "In a dispute about a child\u2019s surname where the mother sought her surname only and the father sought a hyphenated surname, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was dismissed; the hyphenated surname order stood and costs were awarded against the mother (payable over 12 months)."
+  },
+  {
+    "filename": "[2016] FamCAFC 69.txt",
+    "classification": "property_division",
+    "question": "In a de facto property case dismissed for failing the geographic requirement in s90SK, where contributions were made in NSW from sale proceeds used to buy a business and home in Vanuatu, how did the Full Court decide?",
+    "ground_truth": "The appeal was allowed; substantial contributions in NSW were found and the matter was remitted for directions, with costs certificates granted."
+  },
+  {
+    "filename": "[2017] FamCAFC 101.txt",
+    "classification": "children_parenting",
+    "question": "In interim parenting proceedings where the mother sought to replace the ICL and challenged an injunction preventing her from leaving Australia, how did the Full Court decide?",
+    "ground_truth": "The appeal was dismissed; the injunction was upheld as necessary for compliance and in the child\u2019s best interests, with no order as to costs."
+  },
+  {
+    "filename": "[2017] FamCAFC 119.txt",
+    "classification": "children_parenting",
+    "question": "Where final consent parenting orders existed and the mother later sought relocation and different final orders, the primary judge applied Rice & Asplund as a preliminary issue and dismissed for no significant change, how did the Full Court decide?",
+    "ground_truth": "The appeal was allowed; the dismissal was set aside and the matter referred for trial preparation before another judge, with costs certificates granted."
+  },
+  {
+    "filename": "[2017] FamCAFC 120.txt",
+    "classification": "property_division",
+    "question": "Given an asset pool where the only identified assets were the husband's B Street home, cash, prepaid legal fees and a loan (about $793,000) plus the wife's superannuation of about $35,000, with other assets and liabilities not disclosed and possible overseas assets; contributions including the husband's initial contributions, inheritances, and primary homemaker/childcare role after his accident, and the wife's access to about $250,000 pre- and post-separation; future needs including the parties' income and the husband's care of the children; and no binding financial agreement or prior property order, how did the Full Court decide the wife's appeal about altering the property division?",
+    "ground_truth": "The appeal was dismissed; the trial judge's decision that it was not just and equitable to alter the husband's property interests stood, and the wife was ordered to pay the husband's appeal costs."
+  },
+  {
+    "filename": "[2017] FamCAFC 123.txt",
+    "classification": "property_division",
+    "question": "In a de facto property claim where the asset pool included a jointly purchased unit (later bought out), later separate properties, and mortgage liabilities; contributions included the appellant's $145,000 deposit into an offset account and the respondent retaining $25,000 for renovations while she paid outgoings; future needs noted there were no children, no health issues raised, and both parties had their own income; and there was no binding financial agreement or property order, how did the Full Court resolve the appeal about whether a de facto relationship existed to allow property settlement?",
+    "ground_truth": "The appeal was dismissed; the declaration of a de facto relationship was refused, so the property settlement application remained dismissed and costs were ordered against the appellant."
+  },
+  {
+    "filename": "[2017] FamCAFC 125.txt",
+    "classification": "property_division",
+    "question": "For a property division where the asset pool included a substantial inheritance received by the husband four years after separation, the parties' other assets and liabilities, and no binding financial agreement; contributions during the marriage were in issue; future needs including income and health under s 75(2) were considered; and the wife sought inclusion of the inheritance in the pool, how did the Full Court decide the husband's appeal?",
+    "ground_truth": "The appeal was dismissed; it was open to include the after-acquired inheritance in the asset pool, the orders stood, and the husband was ordered to pay the wife's appeal costs."
+  },
+  {
+    "filename": "[2017] FamCAFC 14.txt",
+    "classification": "property_division",
+    "question": "In a property settlement appeal involving an asset pool that included property said to be gifts from the husband's father and an inheritance received by the wife, with contributions (financial and non-financial/homemaker) contested, future needs including income and health considered, and no binding financial agreement or prior property order, how did the Full Court deal with the wife's appeal about contribution findings after a long delay in judgment?",
+    "ground_truth": "The appeal was allowed; the property orders were set aside due to error in contribution findings (including treatment of gifts and the wife's inheritance), and the matter was remitted for re-determination."
+  },
+  {
+    "filename": "[2017] FamCAFC 152.txt",
+    "classification": "children_parenting",
+    "question": "Where a child (age not specified) was currently living with the maternal grandmother, with a history of the grandmother as primary carer, and the trial orders required the child to spend time with the father; the father's availability for time was in issue; safety concerns included alleged unacceptable risk and a need for proper assessment; and no child views were recorded, how did the Full Court decide the grandmother's appeal?",
+    "ground_truth": "The appeal was allowed; the orders about the father's time were set aside and the issue of the father's time was remitted for rehearing because the unacceptable risk test was misapplied and reasons were inadequate."
+  },
+  {
+    "filename": "[2017] FamCAFC 166.txt",
+    "classification": "property_division",
+    "question": "In a property division appeal where the asset pool included a property inherited by the husband about three and a half years after separation (unencumbered), the parties' other assets and liabilities, contributions by each party, future needs including income and age under s 75(2), and no binding financial agreement or prior property order, how did the Full Court rule on the trial judge excluding the inherited property from the pool?",
+    "ground_truth": "The appeal was allowed; it was an error to exclude the inherited property from the asset pool, the orders were set aside, and the matter was remitted for rehearing."
+  },
+  {
+    "filename": "[2017] FamCAFC 170.txt",
+    "classification": "property_division",
+    "question": "In a property settlement appeal where the asset pool included mortgaged real property and other assets and liabilities, contributions (financial and non-financial) and future needs adjustments including income and health were disputed, and there was no binding financial agreement, how did the Full Court resolve the challenges to the structure of the orders and the contribution and s 75(2) findings?",
+    "ground_truth": "The appeal was dismissed; no material error was shown in the structure of the orders, contribution assessment, or future-needs adjustment."
+  },
+  {
+    "filename": "[2017] FamCAFC 180.txt",
+    "classification": "children_parenting",
+    "question": "In a surrogacy parenting case where the child (age not specified) had lived with the intended parents since birth, those applicants were the primary carers, and they sought declarations of parentage and leave for step-parent adoption; with no safety concerns or child views raised and no issues about each party's availability to care, how did the Full Court decide the appeal about parentage declarations?",
+    "ground_truth": "The appeal was dismissed; the Court held that s 69VA was not available, s 60HB applied, and there was no basis for parentage declarations or the step-parent adoption orders sought."
+  },
+  {
+    "filename": "[2017] FamCAFC 21.txt",
+    "classification": "children_parenting",
+    "question": "Where a nearly five-year-old child was currently living under existing parenting orders in Australia, the mother had been a primary carer and sought to relocate to Europe, the father opposed relocation, the parents' work/availability and travel distance were in issue, there were no safety concerns, and no child views were recorded, how did the Full Court decide the mother's relocation appeal?",
+    "ground_truth": "The appeal was dismissed; the relocation request was refused and the existing parenting arrangements remained in place."
+  },
+  {
+    "filename": "[2017] FamCAFC 244.txt",
+    "classification": "children_parenting",
+    "question": "In a parenting relocation case where the child lived with the mother (a primary carer) who was posted by the Australian Defence Force and sought permission to relocate wherever she was posted, with the father and paternal grandmother seeking to maintain time, no specific safety concerns, and no recorded child views, how did the Full Court decide the father's appeal?",
+    "ground_truth": "The appeal was dismissed; the relocation order allowing the mother to move with the child remained in place and no costs were ordered."
+  },
+  {
+    "filename": "[2017] FamCAFC 46.txt",
+    "classification": "children_parenting",
+    "question": "In an interim parenting dispute where the children (ages not specified) had been living under supervision conditions for the father's time due to safety concerns, the mother was the primary carer, the current arrangements were being changed to remove supervision, and no child views were recorded, how did the Full Court resolve the mother's appeal about inadequate reasons?",
+    "ground_truth": "The appeal was allowed; the interim orders removing supervision were set aside and the interim parenting application was remitted for rehearing."
+  },
+  {
+    "filename": "[2018] FamCAFC 121.txt",
+    "classification": "property_division",
+    "question": "Where the wife sought leave to start property proceedings six years out of time, with an asset pool including property and superannuation, contributions over a long marriage, future needs including care of children and income disparity, and reliance on an agreement about property as an explanation for delay, how did the Full Court decide the appeal about granting leave to pursue property division?",
+    "ground_truth": "The appeal was allowed; the earlier refusal of leave was set aside and the wife was granted leave under s 44(3) to commence property proceedings."
+  },
+  {
+    "filename": "[2018] FamCAFC 146.txt",
+    "classification": "property_division",
+    "question": "In a 38-year marriage property case with an asset pool of about $2.66 million including an unencumbered inherited property, contributions heavily disputed (husband's inheritances and financial contributions versus the wife's homemaker and caregiver role), future needs showing the wife had limited earning capacity and low income and care of children including an adult child with psychiatric issues, and no binding financial agreement, how did the Full Court decide the wife's appeal?",
+    "ground_truth": "The appeal was allowed; the contribution and future-needs assessment was found outside discretion, the property orders were set aside, and the matter was remitted for rehearing."
+  },
+  {
+    "filename": "[2018] FamCAFC 170.txt",
+    "classification": "children_parenting",
+    "question": "In parenting proceedings involving three children (born 2004, 2008, and 2016) who currently lived with the mother, with the mother as primary carer, the father's availability for time disputed, safety concerns including allegations of coercive behavior and fabricated allegations, and no recorded child views, how did the Full Court decide the father's appeal?",
+    "ground_truth": "The appeal was allowed; the parenting orders were set aside for procedural fairness and reasoning errors, and the matter was remitted for rehearing with interim arrangements set out by the Full Court."
+  },
+  {
+    "filename": "[2018] FamCAFC 171.txt",
+    "classification": "property_division",
+    "question": "In a property division appeal with a long lapse between separation and final hearing, an asset pool including real property and superannuation, disputed contributions (including claimed add-backs and disclosure issues), future needs including disparate superannuation and income, and no binding financial agreement, how did the Full Court determine the appeal and cross-appeal?",
+    "ground_truth": "Both the appeal and cross-appeal were dismissed; the property orders and the s 75(2) adjustment were upheld, with only limited costs for abandoned grounds."
+  },
+  {
+    "filename": "[2018] FamCAFC 173.txt",
+    "classification": "property_division",
+    "question": "In a high-asset property settlement eight and a half years after separation, with an asset pool exceeding $8 million plus an unencumbered property, contributions assessed as equal, a 10% future-needs adjustment based on income and living expenses, and no binding financial agreement, the husband challenged add-backs including the wife's legal fees; how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was allowed in part; the order was set aside regarding the treatment of the wife's legal fees and the Full Court required re-exercise (or remittal) on that issue, while other aspects were not disturbed."
+  },
+  {
+    "filename": "[2018] FamCAFC 196.txt",
+    "classification": "children_parenting",
+    "question": "Where two children (born 2006 and 2011) were living with the mother under current arrangements, with the mother as primary carer, the father seeking time, safety concerns including an intervention violence order and reports recommending supervised time, and no child views stated, how did the Full Court decide the father's appeal against orders for no face-to-face time or communication?",
+    "ground_truth": "The appeal was dismissed; the orders for the children to live with the mother, for the father to have no face-to-face time and no required communication, and for the mother to have sole parental responsibility remained in place."
+  },
+  {
+    "filename": "[2018] FamCAFC 218.txt",
+    "classification": "spousal_maintenance",
+    "question": "In a de facto relationship that lasted about eight years, where the applicant sought leave to bring maintenance proceedings seven years out of time, the income and expenses of the parties and the applicant's earning capacity were debated, no health or disability issue was relied on, the relationship length was long but there were no children, and the standard of living and assets (including superannuation and property held by the de facto husband) were in issue, how did the Full Court decide the hardship and leave question?",
+    "ground_truth": "Leave to appeal was granted and the appeal allowed; the Full Court found the hardship test was misapplied, re-exercised the discretion, and dismissed the de facto wife's application for leave to bring out-of-time property and maintenance proceedings."
+  },
+  {
+    "filename": "[2018] FamCAFC 235.txt",
+    "classification": "property_division",
+    "question": "In a property settlement appeal where the asset pool was heavily affected by significant ATO tax liabilities for both parties, contributions were assessed under s 79(4), a future-needs adjustment under s 75(2) based on income and living expenses was made, and there was no binding financial agreement, how did the Full Court decide the husband's appeal about the treatment of tax debt and the property division?",
+    "ground_truth": "The appeal was dismissed; the trial judge's treatment of the tax debt and the property adjustment was upheld."
+  },
+  {
+    "filename": "[2018] FamCAFC 257.txt",
+    "classification": "family_violence_safety",
+    "question": "In parenting proceedings involving two young children (born 2012 and 2014), where incidents of alleged family violence and coercive behavior were raised, protection orders and child safety concerns were discussed, there had been police/department involvement relating to a sibling, the children were exposed to conflict, and safety planning (including supervised or graduated time) was proposed, how did the Full Court decide the mother's appeal?",
+    "ground_truth": "The appeal was allowed; errors in assessing family violence and unacceptable risk meant the parenting orders were set aside and the case was remitted for rehearing."
+  },
+  {
+    "filename": "[2018] FamCAFC 42.txt",
+    "classification": "children_parenting",
+    "question": "In a surrogacy parentage dispute where the child (age not specified) lived with the intended parents, those applicants had been the primary carers, and an order required the male respondent's name be entered as father on the birth certificate, with no safety concerns or child views raised, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was allowed; the birth certificate order was set aside and the question of fatherhood was remitted for rehearing."
+  },
+  {
+    "filename": "[2018] FamCAFC 44.txt",
+    "classification": "children_parenting",
+    "question": "In interim parenting proceedings where the children (ages not specified) were currently living under disputed arrangements, each parent sought different schedules, the primary caregiver history and availability were considered, safety concerns were raised but did not displace shared responsibility, and no child views were recorded, how did the Full Court decide the wife's appeal?",
+    "ground_truth": "The appeal was dismissed; the interim parenting orders (including equal shared parental responsibility) were upheld and the wife was ordered to pay the husband's costs."
+  },
+  {
+    "filename": "[2019] FamCAFC 113.txt",
+    "classification": "property_division",
+    "question": "In an interim property application where the asset pool and liabilities were uncertain, the husband was ordered to pay the wife $150,000, contributions and future needs including income and living expenses were in issue, and there was no binding financial agreement, how did the Full Court resolve the husband's appeal about the interim property order?",
+    "ground_truth": "Leave to appeal was granted; the interim property order was set aside due to errors and inadequate reasons, and the matter was remitted for rehearing."
+  },
+  {
+    "filename": "[2019] FamCAFC 128.txt",
+    "classification": "property_division",
+    "question": "Where property settlement consent orders existed (an existing order), the husband sought injunctions to restrain the wife from dealing with Australian assets and to restrain third parties from dealing with an overseas company, the asset pool included domestic property and overseas interests, contributions were not finally determined, and future-needs issues such as income and living expenses were not central, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was allowed in part; the refusal to grant an injunction against the wife was set aside and an injunction was made, while the refusal of injunctions against the third parties was upheld, with no costs order between husband and wife."
+  },
+  {
+    "filename": "[2019] FamCAFC 142.txt",
+    "classification": "property_division",
+    "question": "In a property division appeal where the asset pool and liabilities were assessed by the trial judge, the husband challenged the contribution assessment that gave the wife 20%, future-needs factors including income were considered, and there was no binding financial agreement, how did the Full Court decide the husband's appeal?",
+    "ground_truth": "The appeal was dismissed; the contribution assessment and property orders were upheld and no costs were ordered."
+  },
+  {
+    "filename": "[2019] FamCAFC 153.txt",
+    "classification": "children_parenting",
+    "question": "In parenting proceedings where the father filed an initiating application without a s 60I certificate, the children (ages not specified) were subject to current arrangements, the mother had been the primary carer, availability and safety concerns were not the basis of the appeal, and no child views were recorded, how did the Full Court decide the appeal?",
+    "ground_truth": "The appeal was allowed because the primary judge erred in proceeding without a s 60I certificate or a finding that an exception applied."
+  },
+  {
+    "filename": "[2019] FamCAFC 33.txt",
+    "classification": "prenup_postnup",
+    "question": "For a financial agreement signed before marriage (agreement date pre-marriage), where each party had legal advice, the agreement recorded financial disclosure of pre-marital assets, there were no findings of pressure or duress, and no material changed circumstances were shown, how did the Full Court decide the appeal about whether the agreement was binding?",
+    "ground_truth": "The appeal was dismissed; the financial agreement was declared binding under s 90G, and the husband was ordered to pay the wife's costs."
+  },
+  {
+    "filename": "[2019] FamCAFC 47.txt",
+    "classification": "property_division",
+    "question": "In a de facto property matter where the asset pool was the deceased husband's estate, the applicant sought leave to start proceedings out of time after his death, contributions and future needs including income were asserted, and there was no binding financial agreement, how did the Full Court decide the jurisdictional appeal?",
+    "ground_truth": "Leave to appeal was granted and the appeal allowed; the trial judge lacked jurisdiction to grant leave to commence or continue the de facto property proceedings after the husband's death, so the orders were set aside."
+  },
+  {
+    "filename": "[2019] FamCAFC 78.txt",
+    "classification": "property_division",
+    "question": "In a property division appeal where the asset pool was dominated by land rezoned and greatly increased in value, contributions included the husband's initial ownership and both parties' long-term financial and homemaker roles, future needs were not the main adjustment but income was considered, and there was no binding financial agreement, how did the Full Court decide the appeal about contribution percentages?",
+    "ground_truth": "The appeal was allowed; the contribution assessment was re-exercised and the husband's contributions were assessed at 53% (wife 47%), with orders varied accordingly and costs awarded to the wife."
+  },
+  {
+    "filename": "[2019] FamCAFC 87.txt",
+    "classification": "prenup_postnup",
+    "question": "For a binding financial agreement signed on 5 February 2007, with independent legal advice and stated financial disclosure, and no proven pressure or duress, but with changed circumstances due to a child's disability affecting care and costs, how did the Full Court decide the appeal about hardship and whether to set the agreement aside?",
+    "ground_truth": "The appeal was allowed; the orders were set aside and the financial agreement was set aside under s 90K(1)(d) due to changed circumstances and hardship."
+  }
+]
