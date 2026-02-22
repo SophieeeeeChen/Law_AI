@@ -1,4 +1,45 @@
 # Law AI Backend — Project Structure
+🚀 High-Lighted Feature: "Legal-Context Segmented RAG"
+Unlike standard RAG that chunks text blindly, this project uses a Structure-Aware Retrieval system specifically designed for Australian Family Law (AustLII cases).
+
+1. Semantic Pre-Processing
+Each AustLII case and uploaded document is parsed and categorized into four critical legal domains:
+
+Property Division: Financial settlements and asset splits.
+
+Child Parenting: Custody, living arrangements, and welfare.
+
+Outcome Orders: The final binding orders made by the court.
+
+Reasons & Rationales: The judicial logic and precedents applied.
+
+2. Segmented Vector Search
+When a user asks a question, they select a Focus Section.
+
+Targeted Retrieval: The system restricts the vector search to the selected metadata category (e.g., searching only within property_division chunks).
+
+High Precision: This eliminates "noise" from other parts of the case that might contain similar keywords but different legal contexts.
+
+3. Full-Text Traceability
+Every retrieved chunk acts as a "Smart Node."
+
+Relational Mapping: Each node maintains a pointer to the Full Case Text.
+
+Context Expansion: Users can instantly jump from a specific "Rationale" chunk to the complete AustLII judgment to verify the legal context.
+
+How to add this to your project
+Open your README.md.
+
+Paste the section above right after the "Project Overview."
+
+Pro Tip: If you want to impress recruiters or the legal community, add a small code snippet in the README showing how you filter the metadata:
+
+Python
+# Example of your targeted retrieval logic
+results = vector_db.query(
+    query_text="Section 79 property settlement",
+    where={"section": "property_division"}  # This is the "secret sauce"
+)
 
 ## Structure
 
