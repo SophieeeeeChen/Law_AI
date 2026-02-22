@@ -9,6 +9,12 @@ Property Division: Financial settlements and asset splits.
 
 Child Parenting: Custody, living arrangements, and welfare.
 
+spousal_maintenance
+
+family_violence_safety
+
+prenup_postnup: Pre/post-nuptial agreement
+
 Outcome Orders: The final binding orders made by the court.
 
 Reasons & Rationales: The judicial logic and precedents applied.
@@ -26,13 +32,6 @@ Every retrieved chunk acts as a "Smart Node."
 Relational Mapping: Each node maintains a pointer to the Full Case Text.
 
 Context Expansion: Users can instantly jump from a specific "Rationale" chunk to the complete AustLII judgment to verify the legal context.
-
-How to add this to your project
-Open your README.md.
-
-Paste the section above right after the "Project Overview."
-
-Pro Tip: If you want to impress recruiters or the legal community, add a small code snippet in the README showing how you filter the metadata:
 
 Python
 # Example of your targeted retrieval logic
