@@ -72,7 +72,7 @@ Complete audit trail of all user-AI interactions per case.
 - Cases: retained until user deletion
 - Q&A history: retained for audit compliance (configurable retention period)
 
-## 2) In‑Memory Caches
+## 2) In‑Memory Caches(to be updated: use redis)
 
 **Location**: `app/api/routes.py` (module globals)
 
