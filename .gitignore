@@ -8,13 +8,7 @@ venv/
 node_modules/
 .vscode/
 .DS_Store
-AustLII_cases_txt/
-cases/
 chroma_db/
-logs/
-AustLII_cases_md_famca_tree/
-logs/law_ai.log
-test/
 dev_data_trace.log
 main_old_backup.py
 DATA_STORAGE_ARCHITECTURE.md
@@ -22,20 +16,10 @@ ORGANIZATION_COMPLETE.md
 PROCESSING.md
 README_STRUCTURE.md
 Law_AI.png
-AustLII_cases_md_famca_tree_test/
-AustLII_cases_md_famca_gptmini5/
 build_embeddings_test.py
 dev_logger.py
 .env.development
 .env.production
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
 node_modules
 dist

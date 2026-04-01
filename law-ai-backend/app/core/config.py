@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 def _parse_csv(value: str | None) -> list[str]:
     if not value:
@@ -47,13 +48,21 @@ class Config:
     STATUTE_CHUNK_OVERLAP = int(os.environ.get("STATUTE_CHUNK_OVERLAP", "120"))
     
     # --- Data & Storage ---
+    # Database path - Azure Files mount or local
+    DATA_DIR = Path(os.environ.get("DATA_DIR", Path(__file__).parent.parent.parent / "data"))
+    DATABASE_PATH = DATA_DIR / "sophieai.db"
+    DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
+    
+    @classmethod
+    def ensure_data_dir(cls):
+        """Create data directory if it doesn't exist."""
+        cls.DATA_DIR.mkdir(parents=True, exist_ok=True)
+    
     if ENV == "dev":
-        DATA_DIR = "./AustLII_cases_txt_tmp"
         VECTOR_DB_DIR = "./chroma_db"
         if DATABASE_URL is None:
             DATABASE_URL = "sqlite:///./app.db"
     else:  # prd
-        DATA_DIR = "/mnt/data/AustLII_cases_txt"
         VECTOR_DB_DIR = "/mnt/data/chroma_db"
         if DATABASE_URL is None:
             raise RuntimeError("DATABASE_URL must be set when ENV=prd")
@@ -84,8 +93,9 @@ class Config:
         "5) Do NOT provide legal advice. This is for informational purposes only.\n\n"
         "Case law context snippets (total={context_count}):\n"
         "{context_str}\n"
-         "<|im_end|>\n"
+        "<|im_end|>\n"
         "<|im_start|>user\n"
         "Question: {query_str}\n"
         "<|im_end|>\n"
-        "<|im_start|>assistant\n")
+        "<|im_start|>assistant\n"
+    )
