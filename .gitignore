@@ -9,7 +9,6 @@ node_modules/
 .vscode/
 .DS_Store
 AustLII_cases_txt/
-Austlii_law_statutes/
 cases/
 chroma_db/
 logs/
@@ -22,7 +21,11 @@ DATA_STORAGE_ARCHITECTURE.md
 ORGANIZATION_COMPLETE.md
 PROCESSING.md
 README_STRUCTURE.md
-
+Law_AI.png
+AustLII_cases_md_famca_tree_test/
+AustLII_cases_md_famca_gptmini5/
+build_embeddings_test.py
+dev_logger.py
 .env.development
 .env.production
 # Logs
@@ -47,4 +50,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+test_*
+**/test_*
 

@@ -8,8 +8,8 @@ from typing import Dict, List, Optional
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from llama_index.core import Document, Settings
-from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core import Document
+from llama_index.core.vector_stores import VectorStoreQuery
 from llama_index.llms.openai import OpenAI
 
 from app.services.summary_service import  summary_json_to_sections
@@ -125,14 +125,8 @@ def _build_case_summary_for_query(
     return summary_sections
 
 
-def _refresh_case_summary_cache(case_id: int, summary_sections: List[dict], user_id: int) -> None:
-    """Update the in-memory cache with parsed summary sections."""
-    sections_map = {
-        item["section"]: item["text"]
-        for item in summary_sections
-        if isinstance(item, dict)
-    }
-    """
+def _refresh_case_summary_cache(case_id: int, summary_sections: dict, user_id: int) -> None:
+    """Update the in-memory cache with parsed summary sections.
       case_summary_sections = {
         123: {
             "facts": "- Fact: The parties were married for 12 years and separated in 2022.\n- Fact: There are two children, aged 8 and 10, who live primarily with the mother.\n- Fact: The main asset is the former matrimonial home, valued at $1.2 million.",
@@ -142,93 +136,32 @@ def _refresh_case_summary_cache(case_id: int, summary_sections: List[dict], user
         }
         }
     """
-    case_summary_sections.setdefault(user_id, {})[case_id] = sections_map
-
+    case_summary_sections.setdefault(user_id, {})[case_id] = summary_sections
 
 def _ensure_uploaded_case_embeddings(
     case_id: int,
     filename: str,
-    summary_payload: object,
-    *,
-    summary_sections: Optional[list[dict]] = None,
-    summary_text: Optional[str] = None,
-) -> None:
+    summary_sections: dict) -> None:
     """Create vector embeddings for an uploaded case summary."""
-    if not summary_payload:
-        return
-    if model_manager.has_uploaded_case(case_id):
-        return
-
-    # Parse summary
-    summary_obj = None
-    if isinstance(summary_payload, str):
-        try:
-            summary_obj = json.loads(summary_payload)
-        except Exception:
-            summary_obj = {"raw_summary": summary_payload}
-    elif isinstance(summary_payload, dict):
-        summary_obj = summary_payload
-
-    if not isinstance(summary_obj, dict):
-        return
-
     # Create documents for embedding
-    sections = summary_sections or summary_json_to_sections(summary_obj)
     documents = []
 
-    if sections:
-        for section in sections:
-            text = section.get("text") if isinstance(section, dict) else None
-            if not text:
+    if summary_sections:
+        for section_name, section_text in summary_sections.items():
+            if not section_text:
                 continue
             documents.append(
                 Document(
-                    text=text,
+                    text=section_text,
                     metadata={
-                        "source_type": "uploaded_case",
                         "case_id": str(case_id),
-                        "source": filename,
-                        "summary_section": section.get("section", "unknown"),
-                    },
-                )
-            )
-    else:
-        # Fallback to full text
-        fallback_text = "\n".join(summary_text) if summary_text else None
-        if fallback_text:
-            documents.append(
-                Document(
-                    text=fallback_text,
-                    metadata={
-                        "source_type": "uploaded_case",
-                        "case_id": str(case_id),
-                        "source": filename,
-                        "summary_section": "full",
+                        "case_name": filename,
+                        "summary_section": section_name,
                     },
                 )
             )
 
     model_manager.add_uploaded_case_documents(case_id, documents)
-
-
-def _update_uploaded_case_section_embeddings(
-    case_id: int,
-    filename: str,
-    section_name: str,
-    section_text: Optional[str],
-) -> None:
-    if not section_text:
-        return
-    document = Document(
-        text=section_text,
-        metadata={
-            "source_type": "uploaded_case",
-            "case_id": str(case_id),
-            "source": filename,
-            "summary_section": section_name,
-        },
-    )
-    model_manager.add_uploaded_case_documents(case_id, [document], allow_existing=True)
 
 
 async def upload_case(file: UploadFile, session_user_id: str):
@@ -252,9 +185,6 @@ async def upload_case_endpoint(
     user_id: Optional[str] = Depends(get_current_user_id),
 ):
     """Upload and process a new case document."""
-    if Config.ENV == "dev":
-        format_and_log("/upload_case", "Endpoint Called", "Initial Request", {"filename": file.filename, "session_id": session_id})
-
     resolved_user_id = user_id or session_id or Config.DEV_DEFAULT_USER_ID
 
     # 1. Read file
@@ -274,56 +204,38 @@ async def upload_case_endpoint(
     # 3. Check for existing case (save API credits!)
     existing_case = db.query(Case).filter(
         Case.user_id == user.id,
-        Case.filename == file.filename,
-        Case.text == case_text
+        Case.filename == file.filename
     ).first()
-    summary_text = []
     if existing_case:
-        if Config.ENV == "dev":
-            format_and_log("/upload_case", "Case Found", "existing_case", {"case_id": existing_case.id})
-
         # Restore embeddings and cache from stored summary
         try:
-            summary_obj = json.loads(existing_case.case_summary or "")
+            summary_sections = json.loads(existing_case.case_summary or "")
         except Exception:
-            summary_obj = None
+            summary_sections = None
 
         if Config.ENV == "dev":
             format_and_log(
                 "/upload_case",
                 "Summary",
-                "case_summary",
+                "existing_case_summary in DB",
                 {
                     "case_id": existing_case.id,
-                    "source": "db_existing_case",
-                    "raw_summary_json": (existing_case.case_summary or "")[:8000],
-                    "parsed_summary": summary_obj,
+                    "raw_summary_json": (existing_case.case_summary or "")[:8000]
                 },
             )
 
-        if isinstance(summary_obj, dict):
-            summary_sections = summary_json_to_sections(summary_obj, include_outcome_reasons=False)
-            for section in summary_sections:
-                summary_text.append(f"--- {section.get('section', 'Unknown').replace('_', ' ').title()} ---")
-                summary_text.append(section.get('text', ''))
-                summary_text.append('')
-            _ensure_uploaded_case_embeddings(
-                existing_case.id,
-                existing_case.filename,
-                summary_obj,
-                summary_sections=summary_sections,
-                summary_text=summary_text,
-            )
-            _refresh_case_summary_cache(existing_case.id, summary_sections, existing_case.user_id)
-            if Config.ENV == "dev":
-                format_and_log("/upload_case", "Cache Update", "case_summary_sections", case_summary_sections)
-        else:
-            _ensure_uploaded_case_embeddings(
-                existing_case.id,
-                existing_case.filename,
-                existing_case.case_summary
-            )
+        _ensure_uploaded_case_embeddings(
+            existing_case.id,
+            existing_case.filename,
+            summary_sections=summary_sections
+        )
+        # _refresh_case_summary_cache(existing_case.id, summary_sections, existing_case.user_id)
+        _refresh_case_summary_cache(existing_case.id, summary_sections, resolved_user_id)
 
+        if Config.ENV == "dev":
+            format_and_log("/upload_case", action=f'{resolved_user_id}_refresh_case_summary_cache(existing_case)',
+                            data_name = 'summary_json_to_sections', data_content=summary_sections)
+            
         result["case_id"] = existing_case.id
         return result
 
@@ -331,100 +243,65 @@ async def upload_case_endpoint(
     summary_json_str = compress_case_facts(case_text)
     """
     {
-  "facts": [
-    "The parties were married for 12 years and separated in 2022.",
-    "There are two children, aged 8 and 10, who live primarily with the mother.",
-    "The main asset is the former matrimonial home, valued at $1.2 million."
-  ],
-  "issues": [
-    "What is the appropriate division of the matrimonial home?",
-    "Should the father pay ongoing spousal maintenance to the mother?"
-  ],
-  "property_division": {
-    "asset_pool": [
-      "Matrimonial home: $1,200,000",
-      "Father's superannuation: $450,000",
-      "Mother's superannuation: $150,000"
-    ],
-    "contributions": [
-      "The father was the primary income earner during the relationship.",
-      "The mother was the primary caregiver for the children."
-    ]
-  },
-  "impact_analysis": {
-    "pivotal_findings": [
-      "The court will likely consider the long duration of the marriage and the mother's role as primary caregiver as significant non-financial contributions."
-    ],
-    "statutory_pivots": [
-      "Section 79(4) of the Family Law Act regarding contributions and Section 75(2) regarding future needs will be central to the court's decision."
-    ]
-  }
-}
+        "facts": [
+            "The parties were married for 12 years and separated in 2022.",
+            "There are two children, aged 8 and 10, who live primarily with the mother.",
+            "The main asset is the former matrimonial home, valued at $1.2 million."
+        ],
+        "issues": [
+            "What is the appropriate division of the matrimonial home?",
+            "Should the father pay ongoing spousal maintenance to the mother?"
+        ],
+        "property_division": {
+            "asset_pool": [
+            "Matrimonial home: $1,200,000",
+            "Father's superannuation: $450,000",
+            "Mother's superannuation: $150,000"
+            ],
+            "contributions": [
+            "The father was the primary income earner during the relationship.",
+            "The mother was the primary caregiver for the children."
+            ]
+        },
+        "impact_analysis": {
+            "pivotal_findings": [
+            "The court will likely consider the long duration of the marriage and the mother's role as primary caregiver as significant non-financial contributions."
+            ],
+            "statutory_pivots": [
+            "Section 79(4) of the Family Law Act regarding contributions and Section 75(2) regarding future needs will be central to the court's decision."
+            ]
+        }
+        }
     """
     try:
         summary = json.loads(summary_json_str)
     except (json.JSONDecodeError, TypeError):
         summary = {} # or handle error appropriately
-
-    if Config.ENV == "dev":
-        format_and_log(
-            "/upload_case",
-            "Summary",
-            "case_summary",
-            {
-                "case_id": None,
-                "source": "generated_pre_db",
-                "raw_summary_json": (summary_json_str or "")[:8000],
-                "parsed_summary": summary,
-            },
-        )
-
     
     summary_sections = summary_json_to_sections(summary, include_outcome_reasons=False)
-    for section in summary_sections:
-        summary_text.append(f"--- {section.get('section', 'Unknown').replace('_', ' ').title()} ---")
-        summary_text.append(section.get('text', ''))
-        summary_text.append('')
-
     # 5. Save to database
+    case_summary=json.dumps(summary_sections)  # Converts dict to JSON string
     case_row = Case(
         user_id=user.id,
         filename=file.filename,
-        text=case_text,
-        case_summary=summary_json_str
+        case_summary=case_summary
     )
     db.add(case_row)
     db.commit()
     db.refresh(case_row)
-    if Config.ENV == "dev":
-        format_and_log("/upload_case", "DB Update", "Case Table", {"action": "create", "case_id": case_row.id, "filename": case_row.filename})
-        format_and_log(
-            "/upload_case",
-            "Summary",
-            "case_summary",
-            {
-                "case_id": case_row.id,
-                "source": "generated_saved_to_db",
-                "raw_summary_json": (case_row.case_summary or "")[:8000],
-                "parsed_summary": summary,
-            },
-        )
 
     # 6. Create embeddings
     _ensure_uploaded_case_embeddings(
         case_row.id,
         file.filename,
-        summary,
-        summary_sections=summary_sections,
-        summary_text=summary_text,
+        summary_sections=summary_sections
     )
 
     # 7. Update cache
-    _refresh_case_summary_cache(case_row.id, summary_sections, case_row.user_id)
+    _refresh_case_summary_cache(case_row.id, summary_sections, resolved_user_id)
     if Config.ENV == "dev":
         format_and_log("/upload_case", "Cache Update", "case_summary_sections", case_summary_sections)
     result["case_id"] = case_row.id
-
     return result
 
 
@@ -442,7 +319,6 @@ def reset_case(
         format_and_log("/reset", "Cache Update", "session_history", session_history)
     return {"ok": True}
 
-
 @router.post("/ask")
 #to be updated
 async def ask_ai(
@@ -452,7 +328,7 @@ async def ask_ai(
 ):
     """Ask a question about the uploaded case."""
     if Config.ENV == "dev":
-        format_and_log("/ask", "Endpoint Called", "Initial Request", q.dict())
+        format_and_log("/ask", "Endpoint Called", "Initial Request/ask question", q.dict())
     
     # Get case_id from request or error
     case_id = q.case_id
@@ -472,17 +348,17 @@ async def ask_ai(
     if not case_row:
         raise HTTPException(status_code=404, detail="Case not found")
 
-    # 2. Get conversation history (keyed by user_id -> case_id)
-    chat_history = session_history.get(case_row.user_id, {}).get(case_id, [])
+    # 2. Get conversation history (keyed by session_id -> case_id)
+    chat_history = session_history.get(resolved_user_id, {}).get(case_id, [])
     if Config.ENV == "dev":
         format_and_log(
             "/ask",
             "Cache Lookup",
             "session_history",
             {
-                "user_id": case_row.user_id,
+                "session_id": resolved_user_id,
                 "case_id": case_id,
-                "items": len(chat_history),
+                "items": chat_history[-8:],
             },
         )
     history_text = "\n".join([
@@ -497,24 +373,21 @@ async def ask_ai(
     logger.info(f"Detected topic for question: {detected_topic}")
     # 5. Extract the specific text section for the RAG query
     # We can now reliably get this from the cache, which was just updated.
-    case_section_text = case_summary_sections.get(case_row.user_id, {}).get(case_id, {}).get(detected_topic, "")
-    impact_text = case_summary_sections.get(case_row.user_id, {}).get(case_id, {}).get("impact_analysis", "")
-    logger.info(f"Using summary section for topic '{detected_topic}'")
+    case_summary_incache = case_summary_sections.get(resolved_user_id, {}).get(case_id, {})
 
-    if not case_section_text:
-        logger.warning(f"No summary section found for topic '{detected_topic}' in case {case_id}. Using full summary text as fallback.")
-        summary_sections = _build_case_summary_for_query(case_id, db)
-        case_section_text = "\n".join([section.get("text", "") for section in summary_sections if section.get("section") == detected_topic])
+    # TODO:if there is no case summary in the memory cache, we should fetch the full summary from the DB and rebuild the cache before proceeding. This is to handle the scenario where the server was restarted or the cache was cleared for some reason.
+    if not case_summary_incache:
+        raise HTTPException(status_code=500, detail="Case summary not found in cache. Please re-upload the case or contact support.")
         
+    case_section_text = case_summary_sections.get(resolved_user_id, {}).get(case_id, {}).get(detected_topic, "")
     # 6. Check for missing factors using the full summary object
     missing_fields, clarifying_questions = get_clarification_for_topic(
         topic=detected_topic,
         case_summary=case_section_text,
     )
-
     if clarifying_questions:
         logger.info(f"Clarification needed for topic '{detected_topic}'. Asking questions.")
-        pending_clarifications.setdefault(case_row.user_id, {})[case_id] = {
+        pending_clarifications.setdefault(resolved_user_id, {})[case_id] = {
             "question": q.question,
             "topic": detected_topic,
             "questions": clarifying_questions,
@@ -530,12 +403,12 @@ async def ask_ai(
         }
 
     # 7. Generate answer
-    response_text, citations = await answer_case_question_withuploadFile(
+    response_text, formatted_statutes = await answer_case_question_withuploadFile(
         question=q.question,
         case_section_text=case_section_text,
         history_text=history_text,
         topic=detected_topic,
-        impact_analysis=impact_text
+        case_id=case_id
     )
 
     # Split the response to get the main answer and the cache summary
@@ -544,18 +417,18 @@ async def ask_ai(
     cache_summary = parts[1].strip() if len(parts) > 1 else "Summary not available."
 
     # Store the concise summary in history, not the full answer (keyed by case_id)
-    session_history.setdefault(case_row.user_id, {}).setdefault(case_id, [])
-    session_history[case_row.user_id][case_id].append({"role": "user", "content": q.question})
-    session_history[case_row.user_id][case_id].append({"role": "assistant", "content": cache_summary})
+    session_history.setdefault(resolved_user_id, {}).setdefault(case_id, [])
+    session_history[resolved_user_id][case_id].append({"role": "user", "content": q.question})
+    session_history[resolved_user_id][case_id].append({"role": "assistant", "content": cache_summary})
     if Config.ENV == "dev":
         format_and_log(
             "/ask",
             "Cache Update",
             "session_history",
             {
-                "user_id": case_row.user_id,
+                "session_id": resolved_user_id,
                 "case_id": case_id,
-                "items": len(session_history[case_row.user_id][case_id]),
+                "items": len(session_history[resolved_user_id][case_id]),
                 "last_user": q.question,
                 "last_assistant": cache_summary,
             },
@@ -574,7 +447,7 @@ async def ask_ai(
     if Config.ENV == "dev":
         format_and_log("/ask", "DB Update", "QuestionAnswer Table", {"action": "create", "qa_id": db_entry.id})
 
-    return {"answer": main_answer, "citations": citations}
+    return {"answer": main_answer, "statutes": formatted_statutes}
 
 
 @router.post("/clarify")
@@ -584,7 +457,7 @@ async def clarify_answer(
     user_id: Optional[str] = Depends(get_current_user_id),
 ):
     """
-    c(Clarification):{"answers":{"agreement_date":"Signed 12 May 2019, before the wedding (s 90B).",
+    (Clarification):{"answers":{"agreement_date":"Signed 12 May 2019, before the wedding (s 90B).",
     "legal_advice":"Yes, both had separate lawyers; certificates signed.",
     "financial_disclosure":"No, a Queensland property and super were not disclosed.",
     "pressure_duress":"Yes, three days before wedding with ceremony threatened.",
@@ -601,33 +474,17 @@ async def clarify_answer(
         raise HTTPException(status_code=400, detail="case_id is required")
 
     resolved_user_id = user_id or c.session_id or Config.DEV_DEFAULT_USER_ID
-    user_row = db.query(User).filter(User.external_id == resolved_user_id).first()
-    if not user_row:
-        raise HTTPException(status_code=404, detail="User not found")
 
     # Get case from database (prefer user_id + filename when provided)
-    if c.filename:
-        case_row = (
-            db.query(Case)
-            .filter(Case.user_id == user_row.id, Case.filename == c.filename)
-            .first()
-        )
-    else:
-        case_row = (
-            db.query(Case)
-            .filter(Case.id == case_id, Case.user_id == user_row.id)
-            .first()
-        )
-    if not case_row:
-        raise HTTPException(status_code=404, detail="Case not found")
-
-    pending = pending_clarifications.get(case_row.user_id, {}).get(case_id)
+    
+    
+    pending = pending_clarifications.get(resolved_user_id, {}).get(case_id)
     if Config.ENV == "dev":
         format_and_log(
             "/clarify",
             "Cache Lookup",
             "pending_clarifications",
-            {"user_id": case_row.user_id, "case_id": case_id, "found": bool(pending)},
+            {"user_id": resolved_user_id, "case_id": case_id, "found": bool(pending)},
         )
     """
     pending_clarifications = {
@@ -659,7 +516,7 @@ async def clarify_answer(
                 "/clarify",
                 "Cache Miss",
                 "pending_clarifications",
-                {"user_id": case_row.user_id, "case_id": case_id},
+                {"user_id": resolved_user_id, "case_id": case_id},
             )
         raise HTTPException(status_code=400, detail="No pending clarification")
 
@@ -674,9 +531,9 @@ async def clarify_answer(
     "pressure_duress":"Yes, three days before wedding with ceremony threatened.",
     "changed_circumstances":"Yes, two children were born after signing."}
     """
-    pending_clarifications.get(case_row.user_id, {}).pop(case_id, None)
-    if not pending_clarifications.get(case_row.user_id):
-        pending_clarifications.pop(case_row.user_id, None)
+    pending_clarifications.get(resolved_user_id, {}).pop(case_id, None)
+    if not pending_clarifications.get(resolved_user_id):
+        pending_clarifications.pop(resolved_user_id, None)
     if Config.ENV == "dev":
         format_and_log("/clarify", "Cache Update", "pending_clarifications", pending_clarifications)
 
@@ -684,14 +541,6 @@ async def clarify_answer(
             {field: answer_map.get(field, "") for field in missing_fields},
             max_words=50,
         )
-    """
-    answer_map
-    {"agreement_date":"Signed 12 May 2019, before the wedding (s 90B).",
-    "legal_advice":"Yes, both had separate lawyers; certificates signed.",
-    "financial_disclosure":"No, a Queensland property and super were not disclosed.",
-    "pressure_duress":"Yes, three days before wedding with ceremony threatened.",
-    "changed_circumstances":"Yes, two children were born after signing."}
-    """
     topic = pending.get("topic")
     if topic:
         summary_lines = [
@@ -701,37 +550,26 @@ async def clarify_answer(
         ]
         summary_text = "\n".join(summary_lines)
         if summary_text:
-            user_cache = case_summary_sections.setdefault(case_row.user_id, {})
+            user_cache = case_summary_sections.setdefault(resolved_user_id, {})
             case_cache = user_cache.setdefault(case_id, {})
             existing_text = case_cache.get(topic, "")
+            # TODO: need to think abput how to handle updates to the same topic(especialy for sub-part) - should we replace the old answer or append to it? For now, we will append with a separator.
             if existing_text:
                 case_cache[topic] = f"{existing_text}\n{summary_text}"
             else:
                 case_cache[topic] = summary_text
-
+            if Config.ENV == "dev":
+                format_and_log("/clarify_answer", "clarify_answer", "clarify_answer to update the cache of pending_clarifications",
+                                    case_summary_sections.get(resolved_user_id, {}))
             # Update DB case_summary JSON for the topic + missing_fields
-            try:
-                summary_obj = json.loads(case_row.case_summary or "{}")
-                if not isinstance(summary_obj, dict):
-                    summary_obj = {}
-            except (json.JSONDecodeError, TypeError):
-                summary_obj = {}
-
-            topic_obj = summary_obj.get(topic, {})
-            for field in missing_fields:
-                value = summarized_dict.get(field, "")
-                if not value:
-                    continue
-                field_list = topic_obj.get(field)
-                if not isinstance(field_list, list):
-                    field_list = []
-                field_list.append(value)
-                topic_obj[field] = field_list
-
-            summary_obj[topic] = topic_obj
-            case_row.case_summary = json.dumps(summary_obj)
-            db.add(case_row)
-            db.commit()
+            updated_case_summary = json.dumps(case_summary_sections.get(resolved_user_id, {}).get(case_id, {}))
+            case_row = db.query(Case).filter(Case.id == case_id).first()
+            if case_row:
+                # Update the attribute
+                case_row.case_summary = updated_case_summary
+                # Commit to database
+                db.add(case_row)
+                db.commit()
             if Config.ENV == "dev":
                 format_and_log(
                     "/clarify",
@@ -739,18 +577,7 @@ async def clarify_answer(
                     "Case Table",
                     {"action": "update", "case_id": case_row.id, "reason": "Persisted clarification fields"},
                 )
-                format_and_log(
-                    "/clarify",
-                    "Summary",
-                    "case_summary",
-                    {
-                        "case_id": case_row.id,
-                        "source": "clarify_saved_to_db",
-                        "raw_summary_json": (case_row.case_summary or "")[:8000],
-                        "parsed_summary": summary_obj,
-                    },
-                )
-
+                
             # Update embeddings for the changed topic section
             document = [Document(
                     text=summary_text,
@@ -766,7 +593,7 @@ async def clarify_answer(
     # Generate answer with updated context
     history_text = "\n".join([
         f"{'Client' if t['role']=='user' else 'Lawyer'}: {t['content']}"
-        for t in session_history.get(case_row.user_id, {}).get(case_id, [])[-8:]
+        for t in session_history.get(resolved_user_id, {}).get(case_id, [])[-8:]
     ])
     if Config.ENV == "dev":
         format_and_log(
@@ -774,14 +601,14 @@ async def clarify_answer(
             "Cache Lookup",
             "session_history",
             {
-                "user_id": case_row.user_id,
+                "session_id": resolved_user_id,
                 "case_id": case_id,
-                "items": len(session_history.get(case_row.user_id, {}).get(case_id, [])),
+                "items": len(session_history.get(resolved_user_id, {}).get(case_id, [])),
             },
         )
 
-    case_section_text = case_summary_sections.get(case_row.user_id, {}).get(case_id, {}).get(topic, "")
-    impact_text = case_summary_sections.get(case_row.user_id, {}).get(case_id, {}).get("impact_analysis", "")
+    case_section_text = case_summary_sections.get(resolved_user_id, {}).get(case_id, {}).get(topic, "")
+    impact_text = case_summary_sections.get(resolved_user_id, {}).get(case_id, {}).get("impact_analysis", "")
     logger.info(f"Using summary section for topic '{topic}'")
     if not case_section_text:
         logger.warning(f"No summary section found for topic '{topic}' in case {case_id}. Using full summary text as fallback.")
@@ -789,12 +616,13 @@ async def clarify_answer(
         case_section_text = "\n".join([section.get("text", "") for section in summary_sections if section.get("section") == topic])
 
     pending_question = pending.get("question", "") if isinstance(pending, dict) else ""
-    answer, retrieved_nodes = await answer_case_question_withuploadFile(
+    answer, formatted_statutes = await answer_case_question_withuploadFile(
         question=pending_question,
         case_section_text=case_section_text,
         history_text=history_text,
         topic=topic,
-        impact_analysis=impact_text
+        # user_impact_analysis=impact_text,
+        case_id=case_id
     )
 
     # Strip CACHE_SUMMARY from the answer
@@ -813,8 +641,8 @@ async def clarify_answer(
         format_and_log("/clarify", "DB Update", "QuestionAnswer Table", {"action": "create", "qa_id": qa.id})
 
     return {
-        "answer": main_answer,
-        "citations": retrieved_nodes,  # These are actually citations, not nodes
+        "answer": main_answer, # These are actually citations, not nodes
+        "statutes": formatted_statutes
     }
 
 
@@ -914,3 +742,4 @@ def debug_uploaded_case_embeddings(
                 break
 
     return {"items": items}
+

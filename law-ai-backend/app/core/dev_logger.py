@@ -15,7 +15,9 @@ dev_data_logger.propagate = False  # Prevent passing logs to the root logger
 # Create a handler
 # Use RotatingFileHandler to prevent log files from growing indefinitely
 _BACKEND_ROOT = Path(__file__).resolve().parents[2]
-_LOG_PATH = _BACKEND_ROOT / "dev_data_trace.log"
+_LOG_DIR = _BACKEND_ROOT / "logs"
+_LOG_DIR.mkdir(parents=True, exist_ok=True)
+_LOG_PATH = _LOG_DIR / "dev_data_trace.log"
 
 handler = RotatingFileHandler(
     str(_LOG_PATH),

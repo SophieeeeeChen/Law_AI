@@ -1,0 +1,303 @@
+/*****************************************/
+/* Styles for document saved to a stream */
+/*****************************************/
+
+body { line-height:13pt; font-family:'Times New Roman', serif; font-size:11pt }
+h1, h2, h3, h4, h5, h6, p { margin:0pt }
+li, table { margin-top:0pt; margin-bottom:0pt }
+h1 { margin-top:12pt; margin-left:0pt; text-indent:0pt; page-break-inside:avoid; page-break-after:avoid; line-height:13pt; font-family:Cambria, serif; font-size:16pt; font-weight:normal; color:#365f91 }
+h2 { margin-top:2pt; margin-left:0pt; text-indent:0pt; page-break-inside:avoid; page-break-after:avoid; line-height:13pt; font-family:Cambria, serif; font-size:13pt; font-weight:normal; color:#365f91 }
+h3 { margin-top:2pt; margin-left:36pt; text-indent:-21.6pt; page-break-inside:avoid; page-break-after:avoid; line-height:13pt; font-family:Cambria, serif; font-size:12pt; font-weight:normal; color:#243f60 }
+h4 { margin-top:2pt; margin-left:43.2pt; text-indent:-7.2pt; page-break-inside:avoid; page-break-after:avoid; line-height:13pt; font-family:Cambria, serif; font-size:11pt; font-weight:normal; font-style:italic; color:#365f91 }
+h5 { margin-top:2pt; margin-left:50.4pt; text-indent:-21.6pt; page-break-inside:avoid; page-break-after:avoid; line-height:13pt; font-family:Cambria, serif; font-size:11pt; font-weight:normal; color:#365f91 }
+h6 { margin-top:2pt; margin-left:57.6pt; text-indent:-21.6pt; page-break-inside:avoid; page-break-after:avoid; line-height:13pt; font-family:Cambria, serif; font-size:11pt; font-weight:normal; font-style:normal; color:#243f60 }
+.Heading7 { margin-top:2pt; margin-left:64.8pt; text-indent:-14.4pt; page-break-inside:avoid; page-break-after:avoid; line-height:13pt; font-family:Cambria, serif; font-size:11pt; font-weight:normal; font-style:italic; color:#243f60 }
+.Heading8 { margin-top:2pt; margin-left:72pt; text-indent:-21.6pt; page-break-inside:avoid; page-break-after:avoid; line-height:13pt; font-family:Cambria, serif; font-size:10.5pt; font-weight:normal; color:#272727 }
+.Heading9 { margin-top:2pt; margin-left:79.2pt; text-indent:-7.2pt; page-break-inside:avoid; page-break-after:avoid; line-height:13pt; font-family:Cambria, serif; font-size:10.5pt; font-weight:normal; font-style:italic; color:#272727 }
+.ActHead1 { margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-size:18pt; font-weight:bold }
+.ActHead10 { margin-top:14pt; page-break-after:avoid; line-height:normal; font-size:16pt; font-weight:bold }
+.ActHead2 { margin-top:14pt; margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-size:16pt; font-weight:bold }
+.ActHead3 { margin-top:12pt; margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-size:14pt; font-weight:bold }
+.ActHead4 { margin-top:11pt; margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-size:13pt; font-weight:bold }
+.ActHead5 { margin-top:14pt; margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-size:12pt; font-weight:bold }
+.ActHead6 { margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-family:Arial, sans-serif; font-size:16pt; font-weight:bold }
+.ActHead7 { margin-top:14pt; margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-family:Arial, sans-serif; font-size:14pt; font-weight:bold }
+.ActHead8 { margin-top:12pt; margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-family:Arial, sans-serif; font-size:13pt; font-weight:bold }
+.ActHead9 { margin-top:14pt; margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-size:14pt; font-weight:bold; font-style:italic }
+.Actno { line-height:normal; font-size:20pt; font-weight:bold }
+.BalloonText { line-height:normal; font-family:'Segoe UI', sans-serif; font-size:9pt }
+.Bibliography { line-height:13pt; font-size:11pt }
+.BlockText { margin-right:57.6pt; margin-left:57.6pt; line-height:13pt; border:0.75pt solid #4f81bd; padding:10pt; font-family:Calibri, sans-serif; font-size:11pt; font-style:italic; color:#4f81bd }
+.Blocks { line-height:normal; font-size:12pt }
+.BodyText { margin-bottom:6pt; line-height:13pt; font-size:11pt }
+.BodyText2 { margin-bottom:6pt; line-height:200%; font-size:11pt }
+.BodyText3 { margin-bottom:6pt; line-height:13pt; font-size:8pt }
+.BodyTextFirstIndent { margin-bottom:0pt; text-indent:18pt; line-height:13pt; font-size:11pt }
+.BodyTextFirstIndent2 { margin-left:18pt; margin-bottom:0pt; text-indent:18pt; line-height:13pt; font-size:11pt }
+.BodyTextIndent { margin-left:14.15pt; margin-bottom:6pt; line-height:13pt; font-size:11pt }
+.BodyTextIndent2 { margin-left:14.15pt; margin-bottom:6pt; line-height:200%; font-size:11pt }
+.BodyTextIndent3 { margin-left:14.15pt; margin-bottom:6pt; line-height:13pt; font-size:8pt }
+.BoxHeadBold { margin-top:12pt; margin-left:56.7pt; line-height:normal; border:0.75pt solid #000000; padding:5pt; font-size:11pt; font-weight:bold }
+.BoxHeadItalic { margin-top:12pt; margin-left:56.7pt; line-height:normal; border:0.75pt solid #000000; padding:5pt; font-size:11pt; font-style:italic }
+.BoxList { margin-top:12pt; margin-left:77.95pt; text-indent:-21.25pt; line-height:normal; border:0.75pt solid #000000; padding:5pt; font-size:11pt }
+.BoxNote { margin-top:6.1pt; margin-left:147.4pt; text-indent:-90.7pt; line-height:9.9pt; border:0.75pt solid #000000; padding:5pt; font-size:9pt }
+.BoxPara { margin-top:12pt; margin-left:127.6pt; text-indent:-70.9pt; line-height:normal; border:0.75pt solid #000000; padding:5pt; font-size:11pt }
+.BoxStep { margin-top:12pt; margin-left:99.25pt; text-indent:-42.55pt; line-height:normal; border:0.75pt solid #000000; padding:5pt; font-size:11pt }
+.BoxText { margin-top:12pt; margin-left:56.7pt; line-height:normal; border:0.75pt solid #000000; padding:5pt; font-size:11pt }
+.CTA- { margin-top:3pt; margin-left:4.25pt; text-indent:-4.25pt; line-height:12pt; font-size:10pt }
+.CTA-- { margin-top:3pt; margin-left:7.1pt; text-indent:-7.1pt; line-height:12pt; font-size:10pt }
+.CTA--- { margin-top:3pt; margin-left:9.9pt; text-indent:-9.9pt; line-height:12pt; font-size:10pt }
+.CTA---- { margin-top:3pt; margin-left:12.75pt; text-indent:-12.75pt; line-height:12pt; font-size:10pt }
+.CTA1a { margin-top:2pt; margin-left:33.75pt; text-indent:-33.75pt; line-height:12pt; font-size:10pt }
+.CTA1ai { margin-top:2pt; margin-left:62.65pt; text-indent:-62.65pt; line-height:12pt; font-size:10pt }
+.CTA2a { margin-top:2pt; margin-left:37.4pt; text-indent:-37.4pt; line-height:12pt; font-size:10pt }
+.CTA2ai { margin-top:2pt; margin-left:66.35pt; text-indent:-66.35pt; line-height:12pt; font-size:10pt }
+.CTA3a { margin-top:2pt; margin-left:40.25pt; text-indent:-40.25pt; line-height:12pt; font-size:10pt }
+.CTA3ai { margin-top:2pt; margin-left:68.05pt; text-indent:-68.05pt; line-height:12pt; font-size:10pt }
+.CTA4a { margin-top:2pt; margin-left:43.65pt; text-indent:-43.65pt; line-height:12pt; font-size:10pt }
+.CTA4ai { margin-top:2pt; margin-left:72.6pt; text-indent:-72.6pt; line-height:12pt; font-size:10pt }
+.CTACAPS { margin-top:3pt; line-height:12pt; font-size:10pt }
+.CTAright { margin-top:3pt; text-align:right; line-height:normal; font-size:10pt }
+.Caption { margin-bottom:10pt; line-height:normal; font-size:9pt; font-style:italic; color:#1f497d }
+.Closing { margin-left:212.6pt; line-height:normal; font-size:11pt }
+.CommentSubject { line-height:normal; font-size:10pt; font-weight:bold }
+.CommentText { line-height:normal; font-size:10pt }
+.CompiledActNo { line-height:13pt; font-size:12pt; font-weight:bold }
+.CompiledMadeUnder { line-height:13pt; font-size:12pt; font-style:italic }
+.Date { line-height:13pt; font-size:11pt }
+.Definition { margin-top:9pt; margin-left:56.7pt; line-height:normal; font-size:11pt }
+.DivisionMigration { margin-top:12pt; margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-size:14pt; font-weight:bold }
+.DocumentMap { line-height:normal; font-family:'Segoe UI', sans-serif; font-size:8pt }
+.E-mailSignature { line-height:normal; font-size:11pt }
+.ENoteTTIndentHeading { margin-top:3pt; margin-left:8.5pt; page-break-after:avoid; line-height:12pt; font-size:8pt; font-weight:bold }
+.ENoteTTIndentHeadingSub { margin-top:3pt; margin-left:17pt; page-break-after:avoid; line-height:12pt; font-size:8pt; font-weight:bold }
+.ENoteTTi { margin-top:3pt; margin-left:8.5pt; page-break-after:avoid; line-height:12pt; font-size:8pt }
+.ENoteTTiSub { margin-top:3pt; margin-left:17pt; page-break-after:avoid; line-height:12pt; font-size:8pt }
+.ENoteTableHeading { margin-top:3pt; page-break-after:avoid; line-height:12pt; font-family:Arial, sans-serif; font-size:8pt; font-weight:bold }
+.ENoteTableText { margin-top:3pt; line-height:12pt; font-size:8pt }
+.ENotesHeading1 { margin-top:6pt; line-height:13pt; font-size:14pt; font-weight:bold }
+.ENotesHeading2 { margin-top:6pt; margin-bottom:6pt; line-height:13pt; font-size:12pt; font-weight:bold }
+.ENotesHeading3 { margin-top:6pt; page-break-after:avoid; line-height:normal; font-size:11pt; font-weight:bold }
+.ENotesText { margin-top:6pt; line-height:13pt; font-size:11pt }
+.ETApara { margin-top:3pt; margin-left:41.4pt; text-indent:-41.4pt; line-height:normal; font-size:10pt }
+.ETAsub-subpara { margin-top:3pt; margin-left:76.25pt; text-indent:-76.25pt; line-height:normal; font-size:10pt }
+.ETAsubitem { margin-top:3pt; margin-left:22.7pt; text-indent:-22.7pt; line-height:normal; font-size:10pt }
+.ETAsubpara { margin-top:3pt; margin-left:59.55pt; text-indent:-59.55pt; line-height:normal; font-size:10pt }
+.EnStatement { margin-left:36pt; text-indent:-18pt; line-height:13pt; font-size:11pt }
+.EnStatementHeading { line-height:13pt; font-size:11pt; font-weight:bold }
+.EndNotespara { margin-top:2pt; margin-left:41.4pt; text-indent:-41.4pt; line-height:normal; font-size:10pt }
+.EndNotessubitem { margin-top:3pt; margin-left:22.7pt; text-indent:-22.7pt; line-height:normal; font-size:10pt }
+.EndNotessubpara { margin-top:3pt; margin-left:59.55pt; text-indent:-59.55pt; line-height:normal; font-size:10pt }
+.EndNotessubsubpara { margin-top:3pt; margin-left:76.25pt; text-indent:-76.25pt; line-height:normal; font-size:10pt }
+.EndnoteText { line-height:normal; font-size:10pt }
+.EnvelopeAddress { margin-left:144pt; line-height:normal; font-family:Cambria, serif; font-size:12pt }
+.EnvelopeReturn { line-height:normal; font-family:Cambria, serif; font-size:10pt }
+.FileName { line-height:13pt; font-size:11pt }
+.Footer { font-size:11pt }
+.FootnoteText { line-height:normal; font-size:10pt }
+.Formula { margin-left:56.7pt; line-height:normal; font-size:10pt }
+.FreeForm { font-family:Arial, sans-serif; font-size:11pt }
+.HTMLAddress { line-height:normal; font-size:11pt; font-style:italic }
+.HTMLPreformatted { line-height:normal; font-family:Consolas, monospace; font-size:10pt }
+.Header { page-break-inside:avoid; page-break-after:avoid; line-height:8pt; font-size:8pt }
+.House { line-height:normal; font-size:14pt }
+.Index1 { margin-left:11pt; text-indent:-11pt; line-height:normal; font-size:11pt }
+.Index2 { margin-left:22pt; text-indent:-11pt; line-height:normal; font-size:11pt }
+.Index3 { margin-left:33pt; text-indent:-11pt; line-height:normal; font-size:11pt }
+.Index4 { margin-left:44pt; text-indent:-11pt; line-height:normal; font-size:11pt }
+.Index5 { margin-left:55pt; text-indent:-11pt; line-height:normal; font-size:11pt }
+.Index6 { margin-left:66pt; text-indent:-11pt; line-height:normal; font-size:11pt }
+.Index7 { margin-left:77pt; text-indent:-11pt; line-height:normal; font-size:11pt }
+.Index8 { margin-left:88pt; text-indent:-11pt; line-height:normal; font-size:11pt }
+.Index9 { margin-left:99pt; text-indent:-11pt; line-height:normal; font-size:11pt }
+.IndexHeading { line-height:13pt; font-family:Cambria, serif; font-size:11pt; font-weight:bold }
+.IntenseQuote { margin:18pt 43.2pt; text-align:center; line-height:13pt; border-top:0.75pt solid #4f81bd; border-bottom:0.75pt solid #4f81bd; padding-top:10pt; padding-bottom:10pt; font-size:11pt; font-style:italic; color:#4f81bd }
+.Item { margin-top:4pt; margin-left:35.45pt; page-break-inside:avoid; line-height:normal; font-size:11pt }
+.ItemHead { margin-top:11pt; margin-left:35.45pt; text-indent:-35.45pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-family:Arial, sans-serif; font-size:12pt; font-weight:bold }
+.List { margin-left:14.15pt; text-indent:-14.15pt; line-height:13pt; font-size:11pt }
+.List2 { margin-left:28.3pt; text-indent:-14.15pt; line-height:13pt; font-size:11pt }
+.List3 { margin-left:42.45pt; text-indent:-14.15pt; line-height:13pt; font-size:11pt }
+.List4 { margin-left:56.6pt; text-indent:-14.15pt; line-height:13pt; font-size:11pt }
+.List5 { margin-left:70.75pt; text-indent:-14.15pt; line-height:13pt; font-size:11pt }
+.ListBullet { margin-left:18pt; text-indent:-18pt; line-height:13pt; font-size:11pt }
+.ListBullet2 { margin-left:32.15pt; text-indent:-18pt; line-height:13pt; font-size:11pt }
+.ListBullet3 { margin-left:46.3pt; text-indent:-18pt; line-height:13pt; font-size:11pt }
+.ListBullet4 { margin-left:60.45pt; text-indent:-18pt; line-height:13pt; font-size:11pt }
+.ListBullet5 { margin-left:74.6pt; text-indent:-18pt; line-height:13pt; font-size:11pt }
+.ListContinue { margin-left:14.15pt; margin-bottom:6pt; line-height:13pt; font-size:11pt }
+.ListContinue2 { margin-left:28.3pt; margin-bottom:6pt; line-height:13pt; font-size:11pt }
+.ListContinue3 { margin-left:42.45pt; margin-bottom:6pt; line-height:13pt; font-size:11pt }
+.ListContinue4 { margin-left:56.6pt; margin-bottom:6pt; line-height:13pt; font-size:11pt }
+.ListContinue5 { margin-left:70.75pt; margin-bottom:6pt; line-height:13pt; font-size:11pt }
+.ListNumber { margin-left:18pt; text-indent:-18pt; line-height:13pt; font-size:11pt }
+.ListNumber2 { margin-left:32.15pt; text-indent:-18pt; line-height:13pt; font-size:11pt }
+.ListNumber3 { margin-left:46.3pt; text-indent:-18pt; line-height:13pt; font-size:11pt }
+.ListNumber4 { margin-left:60.45pt; text-indent:-18pt; line-height:13pt; font-size:11pt }
+.ListNumber5 { margin-left:74.6pt; text-indent:-18pt; line-height:13pt; font-size:11pt }
+.ListParagraph { margin-left:36pt; line-height:13pt; font-size:11pt }
+.LongT { line-height:normal; font-size:16pt; font-weight:bold }
+.Macro { line-height:13pt; font-family:Consolas, monospace }
+.MadeunderText { margin-top:12pt; line-height:13pt; font-size:12pt }
+.MessageHeader { margin-left:56.7pt; text-indent:-56.7pt; line-height:normal; border:0.75pt solid #000000; padding:1pt; font-family:Cambria, serif; font-size:12pt; background-color:#cccccc }
+.NoSpacing { font-size:11pt }
+.NormalWeb { line-height:13pt; font-size:12pt }
+.NormalIndent { margin-left:36pt; line-height:13pt; font-size:11pt }
+.NoteHeading { line-height:normal; font-size:11pt }
+.NoteToSubpara { margin-top:2pt; margin-left:141.75pt; text-indent:-35.45pt; line-height:9.9pt; font-size:9pt }
+.NotesHeading1 { line-height:13pt; font-size:14pt; font-weight:bold }
+.NotesHeading2 { line-height:13pt; font-size:14pt; font-weight:bold }
+.OPCParaBase { line-height:13pt; font-size:11pt }
+.Page1 { margin-top:280pt; line-height:normal; font-size:16pt; font-weight:bold }
+.PageBreak { line-height:normal; font-size:10pt }
+.Paragraphsub-sub-sub { margin-top:2pt; margin-left:170.1pt; text-indent:-170.1pt; line-height:normal; font-size:11pt }
+.ParlAmend { margin-top:12pt; text-indent:-28.35pt; line-height:12pt; font-size:12pt }
+.Penalty { margin-top:9pt; margin-left:99.25pt; text-indent:-42.55pt; line-height:normal; font-size:11pt }
+.PlainText { line-height:normal; font-family:Consolas, monospace; font-size:10.5pt }
+.Portfolio { line-height:normal; font-size:10pt; font-style:italic }
+.Preamble { margin-top:14pt; margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-size:14pt; font-weight:bold }
+.Quote { margin:10pt 43.2pt 8pt; text-align:center; line-height:13pt; font-size:11pt; font-style:italic; color:#404040 }
+.Reading { line-height:normal; font-size:10pt; font-style:italic }
+.Revision { font-size:11pt }
+.SOBullet { margin-top:12pt; margin-left:77.95pt; text-indent:-21.25pt; border:0.75pt solid #000000; padding:5pt; font-size:11pt }
+.SOBulletNote { margin-top:6.1pt; margin-left:113.4pt; text-indent:-56.7pt; line-height:9.9pt; border:0.75pt solid #000000; padding:5pt; font-size:9pt }
+.SOHeadBold { margin-top:12pt; margin-left:56.7pt; border:0.75pt solid #000000; padding:5pt; font-size:11pt; font-weight:bold }
+.SOHeadItalic { margin-top:12pt; margin-left:56.7pt; border:0.75pt solid #000000; padding:5pt; font-size:11pt; font-style:italic }
+.SOPara { margin-top:2pt; margin-left:103.5pt; text-indent:-46.8pt; border:0.75pt solid #000000; padding:5pt; font-size:11pt }
+.SOText { margin-top:12pt; margin-left:56.7pt; border:0.75pt solid #000000; padding:5pt; font-size:11pt }
+.SOText2 { margin-top:2pt; margin-left:56.7pt; line-height:normal; border:0.75pt solid #000000; padding:5pt; font-size:11pt }
+.SOTextNote { margin-top:6.1pt; margin-left:92.15pt; text-indent:-35.45pt; line-height:9.9pt; border:0.75pt solid #000000; padding:5pt; font-size:9pt }
+.Salutation { line-height:13pt; font-size:11pt }
+.Session { line-height:normal; font-size:14pt }
+.ShortT { line-height:normal; font-size:20pt; font-weight:bold }
+.SignCoverPageEnd { margin-right:19.85pt; margin-bottom:12pt; page-break-after:avoid; line-height:15pt; border-bottom:0.75pt solid #000000; padding-bottom:12pt; font-size:11pt }
+.SignCoverPageStart { margin-top:18pt; margin-right:19.85pt; text-align:justify; line-height:13pt; border-top:0.75pt solid #000000; padding-top:1pt; font-size:11pt }
+.Signature { margin-left:212.6pt; line-height:normal; font-size:11pt }
+.Sponsor { line-height:normal; font-size:11pt; font-style:italic }
+.SubDivisionMigration { margin-top:11pt; margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-size:13pt; font-weight:bold }
+.SubPartCASA { margin-top:14pt; margin-left:56.7pt; text-indent:-56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:13pt; font-size:16pt; font-weight:bold }
+.Subitem { margin-top:9pt; margin-left:35.45pt; text-indent:-35.45pt; line-height:normal; font-size:11pt }
+.SubitemHead { margin-top:11pt; margin-left:35.45pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-family:Arial, sans-serif; font-size:11pt; font-style:italic }
+.SubsectionHead { margin-top:12pt; margin-left:56.7pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-size:11pt; font-style:italic }
+.Subtitle { margin-bottom:8pt; line-height:13pt; font-family:Calibri, sans-serif; font-size:11pt; letter-spacing:0.75pt; color:#5a5a5a }
+.TLPBoxTextnote { margin-top:12pt; margin-left:56.7pt; text-align:right; line-height:12pt; border:0.75pt solid #000000; padding:5pt; font-size:9pt }
+.TLPNotebullet { margin-top:3pt; margin-left:0pt; text-indent:0pt; line-height:9.9pt; font-size:9pt }
+.TLPTableBullet { margin-left:14.2pt; text-indent:-14.2pt; line-height:12pt; font-size:10pt }
+.TLPnoteright { margin-top:6.1pt; margin-left:99.25pt; text-indent:-42.55pt; text-align:right; line-height:9.9pt; font-size:9pt }
+.TOAHeading { margin-top:6pt; line-height:13pt; font-family:Cambria, serif; font-size:12pt; font-weight:bold }
+.TOC1 { margin-top:6pt; margin-right:28.35pt; margin-left:73.7pt; text-indent:-73.7pt; page-break-inside:avoid; line-height:normal; font-size:14pt; font-weight:bold }
+.TOC2 { margin-top:6pt; margin-right:28.35pt; margin-left:43.95pt; text-indent:-43.95pt; page-break-inside:avoid; line-height:normal; font-size:12pt; font-weight:bold }
+.TOC3 { margin-top:4pt; margin-right:28.35pt; margin-left:80.2pt; text-indent:-58.95pt; page-break-inside:avoid; line-height:normal; font-size:11pt; font-weight:bold }
+.TOC4 { margin-top:4pt; margin-right:28.35pt; margin-left:109.2pt; text-indent:-66.65pt; page-break-inside:avoid; line-height:normal; font-size:10pt; font-weight:bold }
+.TOC5 { margin-top:2pt; margin-right:28.35pt; margin-left:141.75pt; text-indent:-70.85pt; page-break-inside:avoid; line-height:normal; font-size:9pt }
+.TOC6 { margin-top:6pt; margin-right:28.35pt; margin-left:67.2pt; text-indent:-67.2pt; page-break-inside:avoid; line-height:normal; font-size:12pt; font-weight:bold }
+.TOC7 { margin-top:6pt; margin-right:28.35pt; margin-left:62.65pt; text-indent:-41.4pt; page-break-inside:avoid; line-height:normal; font-size:12pt }
+.TOC8 { margin-top:4pt; margin-right:28.35pt; margin-left:95pt; text-indent:-52.45pt; page-break-inside:avoid; line-height:normal; font-size:10pt }
+.TOC9 { margin-top:4pt; margin-right:28.35pt; margin-left:42.55pt; page-break-inside:avoid; line-height:normal; font-size:10pt; font-style:italic }
+.TOCHeading { margin-top:12pt; margin-left:0pt; text-indent:0pt; page-break-inside:avoid; page-break-after:avoid; line-height:13pt; font-family:Cambria, serif; font-size:16pt; color:#365f91 }
+.TableofAuthorities { margin-left:11pt; text-indent:-11pt; line-height:13pt; font-size:11pt }
+.TableofFigures { line-height:13pt; font-size:11pt }
+.TableAA { margin-left:52.75pt; text-indent:-14.2pt; line-height:12pt; font-size:10pt }
+.Tablea { margin-top:3pt; margin-left:14.2pt; text-indent:-14.2pt; line-height:normal; font-size:10pt }
+.Tablei { margin-left:41.4pt; text-indent:-14.2pt; line-height:12pt; font-size:10pt }
+.TableHeading { margin-top:3pt; page-break-after:avoid; line-height:12pt; font-size:10pt; font-weight:bold }
+.TableTextEndNotes { margin-top:3pt; line-height:normal; font-size:10pt }
+.Tabletext { margin-top:3pt; line-height:12pt; font-size:10pt }
+.Title { line-height:normal; font-family:Cambria, serif; font-size:28pt; letter-spacing:-0.5pt }
+.TofSectsGroupHeading { margin-top:12pt; margin-left:39.7pt; margin-bottom:6pt; page-break-inside:avoid; line-height:normal; font-size:10pt; font-weight:bold }
+.TofSectsHeading { margin-top:12pt; margin-bottom:6pt; line-height:normal; font-size:12pt; font-weight:bold }
+.TofSectsSection { margin-top:2pt; margin-left:79.4pt; text-indent:-39.7pt; page-break-inside:avoid; line-height:normal; font-size:9pt }
+.TofSectsSubdiv { margin-top:4pt; margin-left:79.4pt; text-indent:-39.7pt; page-break-inside:avoid; line-height:normal; font-size:11pt }
+.Transitional { margin-top:11pt; margin-left:35.45pt; text-indent:-35.45pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; font-family:Arial, sans-serif; font-size:12pt; font-weight:bold }
+.WRStyle { margin-top:12pt; margin-left:14.2pt; text-indent:-14.2pt; line-height:normal; font-size:12pt; font-weight:bold; font-style:italic }
+.noteParlAmend { text-align:right; line-height:normal; font-family:Arial, sans-serif; font-size:11pt; font-weight:bold; font-style:italic }
+.notedraft { margin-top:12pt; margin-left:14.2pt; text-indent:-14.2pt; line-height:normal; font-size:12pt; font-style:italic }
+.notemargin { margin-top:6.1pt; margin-left:35.45pt; text-indent:-35.45pt; line-height:9.9pt; font-size:9pt }
+.notepara { margin-top:2pt; margin-left:117.7pt; text-indent:-18.45pt; line-height:9.9pt; font-size:9pt }
+.notetext { margin-top:6.1pt; margin-left:99.25pt; text-indent:-42.55pt; line-height:normal; font-size:9pt }
+.noteToPara { margin-top:6.1pt; margin-left:117.65pt; text-indent:-35.45pt; line-height:9.9pt; font-size:9pt }
+.paragraph { margin-top:2pt; margin-left:82.2pt; text-indent:-82.2pt; line-height:normal; font-size:11pt }
+.paragraphsub { margin-top:2pt; margin-left:104.9pt; text-indent:-104.9pt; line-height:normal; font-size:11pt }
+.paragraphsub-sub { margin-top:2pt; margin-left:141.75pt; text-indent:-141.75pt; line-height:normal; font-size:11pt }
+.subsection { margin-top:9pt; margin-left:56.7pt; text-indent:-56.7pt; line-height:normal; font-size:11pt }
+.subsection2 { margin-top:2pt; margin-left:56.7pt; line-height:normal; font-size:11pt }
+span.ActHead5Char { font-size:12pt; font-weight:bold }
+span.BalloonTextChar { font-family:'Segoe UI', sans-serif; font-size:9pt }
+span.BodyText2Char { font-size:11pt }
+span.BodyText3Char { font-size:8pt }
+span.BodyTextChar { font-size:11pt }
+span.BodyTextFirstIndent2Char { font-size:11pt }
+span.BodyTextFirstIndentChar { font-size:11pt }
+span.BodyTextIndent2Char { font-size:11pt }
+span.BodyTextIndent3Char { font-size:8pt }
+span.BodyTextIndentChar { font-size:11pt }
+span.BookTitle { font-weight:bold; font-style:italic; letter-spacing:0.25pt }
+span.CharBoldItalic { font-weight:bold; font-style:italic }
+span.CharItalic { font-style:italic }
+span.ClosingChar { font-size:11pt }
+span.CommentReference { font-size:8pt }
+span.CommentSubjectChar { font-weight:bold }
+span.DateChar { font-size:11pt }
+span.DefinitionChar { font-size:11pt }
+span.DocumentMapChar { font-family:'Segoe UI', sans-serif; font-size:8pt }
+span.E-mailSignatureChar { font-size:11pt }
+span.Emphasis { font-style:italic }
+span.EndnoteReference { vertical-align:super }
+span.FollowedHyperlink { text-decoration:underline; color:#800080 }
+span.FooterChar { font-size:11pt }
+span.FootnoteReference { vertical-align:super }
+span.HTMLAddressChar { font-size:11pt; font-style:italic }
+span.HTMLCite { font-style:italic }
+span.HTMLCode { font-family:Consolas, monospace; font-size:10pt }
+span.HTMLDefinition { font-style:italic }
+span.HTMLKeyboard { font-family:Consolas, monospace; font-size:10pt }
+span.HTMLPreformattedChar { font-family:Consolas, monospace }
+span.HTMLSample { font-family:Consolas, monospace; font-size:12pt }
+span.HTMLTypewriter { font-family:Consolas, monospace; font-size:10pt }
+span.HTMLVariable { font-style:italic }
+span.Hashtag { color:#2b579a; background-color:#e1dfdd }
+span.HeaderChar { font-size:8pt }
+span.Heading1Char { font-family:Cambria, serif; font-size:16pt; color:#365f91 }
+span.Heading2Char { font-family:Cambria, serif; font-size:13pt; color:#365f91 }
+span.Heading3Char { font-family:Cambria, serif; font-size:12pt; color:#243f60 }
+span.Heading4Char { font-family:Cambria, serif; font-size:11pt; font-style:italic; color:#365f91 }
+span.Heading5Char { font-family:Cambria, serif; font-size:11pt; color:#365f91 }
+span.Heading6Char { font-family:Cambria, serif; font-size:11pt; color:#243f60 }
+span.Heading7Char { font-family:Cambria, serif; font-size:11pt; font-style:italic; color:#243f60 }
+span.Heading8Char { font-family:Cambria, serif; font-size:10.5pt; color:#272727 }
+span.Heading9Char { font-family:Cambria, serif; font-size:10.5pt; font-style:italic; color:#272727 }
+span.Hyperlink { text-decoration:underline; color:#0000ff }
+span.IntenseEmphasis { font-style:italic; color:#4f81bd }
+span.IntenseQuoteChar { font-size:11pt; font-style:italic; color:#4f81bd }
+span.IntenseReference { font-weight:bold; font-variant:small-caps; letter-spacing:0.25pt; color:#4f81bd }
+span.ItemHeadChar { font-family:Arial, sans-serif; font-size:12pt; font-weight:bold }
+span.LineNumber { font-size:8pt }
+span.MacroTextChar { font-family:Consolas, monospace }
+span.Mention { color:#2b579a; background-color:#e1dfdd }
+span.MessageHeaderChar { font-family:Cambria, serif; font-size:12pt; background-color:#cccccc }
+span.NoteHeadingChar { font-size:11pt }
+span.PlaceholderText { color:#808080 }
+span.PlainTextChar { font-family:Consolas, monospace; font-size:10.5pt }
+span.QuoteChar { font-size:11pt; font-style:italic; color:#404040 }
+span.SOBulletChar { font-size:11pt }
+span.SOBulletNoteChar { font-size:9pt }
+span.SOHeadBoldChar { font-size:11pt; font-weight:bold }
+span.SOHeadItalicChar { font-size:11pt; font-style:italic }
+span.SOParaChar { font-size:11pt }
+span.SOTextChar { font-size:11pt }
+span.SOText2Char { font-size:11pt }
+span.SalutationChar { font-size:11pt }
+span.SignatureChar { font-size:11pt }
+span.SmartHyperlink { text-decoration:underline }
+span.Strong { font-weight:bold }
+span.SubtitleChar { font-family:Calibri, sans-serif; font-size:11pt; letter-spacing:0.75pt; color:#5a5a5a }
+span.SubtleEmphasis { font-style:italic; color:#404040 }
+span.SubtleReference { font-variant:small-caps; color:#5a5a5a }
+span.TitleChar { font-family:Cambria, serif; font-size:28pt; letter-spacing:-0.5pt }
+span.UnresolvedMention { color:#605e5c; background-color:#e1dfdd }
+span.notetextChar { font-size:9pt }
+span.paragraphChar { font-size:11pt }
+span.subsectionChar { font-size:11pt }
+span.subsection2Char { font-size:11pt }
+.\31 11111 { margin-left:18pt; text-indent:-18pt }
+.\31 ai { margin-left:18pt; text-indent:-18pt }
+.ArticleSection { margin-left:0pt; text-indent:0pt }

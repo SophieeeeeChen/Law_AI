@@ -191,6 +191,7 @@ function ChatWindowAntd() {
             sender: "AI",
             text: data.answer,
             citations: data.citations,
+            statutes: data.statutes,
           },
         ]);
       }
@@ -239,7 +240,7 @@ function ChatWindowAntd() {
       const data = await response.json();
       setMessages((msgs) => [
         ...msgs,
-        { sender: "AI", text: data.answer, citations: data.citations },
+        { sender: "AI", text: data.answer, citations: data.citations, statutes: data.statutes },
       ]);
       setPendingQuestions([]);
       setPendingMissingFields([]);
@@ -325,8 +326,19 @@ function ChatWindowAntd() {
             <Card
               key={idx}
               size="small"
-              title={section.title}
-              headStyle={{ backgroundColor: "#f0f5ff", fontWeight: 600 }}
+              title={
+                <Text strong style={{ color: "#1890ff", fontSize: "13px" }}>
+                  {section.title}
+                </Text>
+              }
+              styles={{
+                header: {
+                  padding: "8px 12px",
+                  minHeight: "auto",
+                  borderBottom: "1px solid #f0f0f0",
+                },
+              }}
+              bodyStyle={{ padding: "8px 12px" }}
             >
               {formattedLines}
             </Card>
@@ -353,7 +365,7 @@ function ChatWindowAntd() {
                 dataSource={citations}
                 renderItem={(cit) => (
                   <List.Item>
-                    <Space direction="vertical" size="small" style={{ width: "100%" }}>
+                    <Space orientation="vertical" size="small" style={{ width: "100%" }}>
                       <Text strong>{cit.file_name}</Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>
                         Relevance: {(cit.score * 100).toFixed(1)}%
@@ -574,6 +586,42 @@ function ChatWindowAntd() {
                     >
                       {msg.sender === "AI" ? renderAIText(msg.text) : <Text>{msg.text}</Text>}
                       {msg.citations && renderCitations(msg.citations)}
+                      {msg.statutes && msg.statutes.length > 0 && (
+                        <Collapse
+                          size="small"
+                          style={{ marginTop: 12 }}
+                          items={[
+                            {
+                              key: "statutes",
+                              label: `📜 Relevant Statutes (${msg.statutes.length})`,
+                              children: (
+                                <List
+                                  size="small"
+                                  dataSource={msg.statutes}
+                                  renderItem={(statute, i) => (
+                                    <List.Item>
+                                      <Space direction="vertical" size="small" style={{ width: "100%" }}>
+                                        <Text strong>{statute.title || statute.section || `Statute ${i + 1}`}</Text>
+                                        {statute.score != null && (
+                                          <Text type="secondary" style={{ fontSize: 12 }}>
+                                            Relevance: {statute.score}
+                                          </Text>
+                                        )}
+                                        <Paragraph
+                                          ellipsis={{ rows: 3, expandable: true, symbol: "more" }}
+                                          style={{ margin: 0, fontSize: 12 }}
+                                        >
+                                          {statute.text}
+                                        </Paragraph>
+                                      </Space>
+                                    </List.Item>
+                                  )}
+                                />
+                              ),
+                            },
+                          ]}
+                        />
+                      )}
                     </div>
                   </div>
                 </div>

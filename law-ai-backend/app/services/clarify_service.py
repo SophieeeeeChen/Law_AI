@@ -43,6 +43,8 @@ TOPIC_FACTORS: Dict[str, Dict[str, List[str]]] = {
             "necessary living expenses",
             "reasonable standard of living",
         ],
+        "just_equitable": ["just", "equitable", "fair", "unfair", "inequity", "hardship"],
+        "living_arrangements": ["living arrangement", "reside", "live", "stay", "move", "home"],
         "existing_agreements": ["agreement", "bfa", "binding", "order"],
     },
     "children_parenting": {
@@ -52,8 +54,14 @@ TOPIC_FACTORS: Dict[str, Dict[str, List[str]]] = {
         "availability": ["work", "hours", "shift", "availability", "travel"],
         "safety_concerns": ["violence", "abuse", "safety", "order"],
         "child_views": ["child", "preference", "wish", "view"],
+        "allegations": ["allegation", "claim", "accuse", "deny"],
+        "expert_evidence": ["expert", "report", "family consultant", "psychologist", "social worker"],
+        "best_interests": ["best interest", "benefit", "welfare"],
+        "orders": ["order", "court", "consent", "agreement"],
     },
     "spousal_maintenance": {
+        "need": ["need", "support", "financial assistance"],
+        "capacity_to_pay": ["capacity to pay", "ability to pay", "financial capacity"],
         "income_expenses": ["income", "expense", "budget", "cost", "pay"],
         "earning_capacity": ["work", "job", "employ", "capacity", "qualification"],
         "health_care": ["health", "illness", "disability", "care"],

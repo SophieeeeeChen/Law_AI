@@ -21,7 +21,7 @@ class Case(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     filename = Column(String(512), nullable=True)
-    text = Column(Text, nullable=False)
+    # text = Column(Text, nullable=False)
     case_summary = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

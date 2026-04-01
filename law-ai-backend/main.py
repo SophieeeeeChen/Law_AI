@@ -43,6 +43,7 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def startup_event():
         """Initialize models and database on startup."""
+        print(f"DEBUG GEMINI_MODEL = {Config.GEMINI_MODEL}")
         logger.info("Starting up Law AI Backend...")
         logger.info("Initializing models and vector indices...")
         model_manager.init_models()

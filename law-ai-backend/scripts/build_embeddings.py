@@ -1,4 +1,6 @@
 import argparse
+from datetime import datetime
+import time
 import json
 import logging
 import os
@@ -8,6 +10,12 @@ import queue
 import threading
 from pathlib import Path
 from typing import Iterable, List
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# NOW import from app (after path is set up)
+from app.core.dev_logger import format_and_log
+
 
 # Add parent directory to path so we can import from app
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -16,9 +24,10 @@ import chromadb
 from bs4 import BeautifulSoup
 import trafilatura
 from llama_index.core import Document, Settings, StorageContext, VectorStoreIndex
-from llama_index.core.node_parser import SentenceSplitter
 from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from llama_index.llms.openai import OpenAI
+from llama_index.llms.google_genai import GoogleGenAI
 from llama_index.vector_stores.chroma import ChromaVectorStore
 
 from app.core.config import Config
@@ -33,28 +42,31 @@ from app.services.summary_service import (
 # -----------------------------
 # EDIT THESE PATHS IF NEEDED
 # -----------------------------
-CASES_TXT_DIR = "./AustLII_cases_txt_old"
-STATUTES_JSONL = "./Austlii_law_statutes/family_law_act_1975_sections.jsonl"
+CASES_TXT_DIR = str((Path(__file__).resolve().parent.parent / "AustLII_cases_md_famca_tree").resolve())
+STATUTES_JSONL = str((Path(__file__).resolve().parent.parent / "Austlii_law_statutes/family_law_act_1975_sections.jsonl").resolve())
 
 # Single ChromaDB instance
 DB_DIR = str((Path(__file__).resolve().parent.parent / "chroma_db").resolve())
 
 # Log file
-LOG_PATH = "./logs/build_embeddings_fortest.log"
+LOG_PATH = str((Path(__file__).resolve().parent.parent / "logs" / "build_embeddings.log").resolve())
+SCRIPT_LOG_DIR = str((Path(__file__).resolve().parent.parent / "logs").resolve())
 
-# Collection names
-CASES_COLLECTION = "cases_full"
-STATUTES_COLLECTION = "rules_statutes"
-SUMMARY_COLLECTION = "cases_summary"
-SUMMARY_JSONL = "./out_summaries/case_summaries.jsonl"
+# Collection names gpt
+# CASES_COLLECTION_gpt5 = "cases_full"
+# SUMMARY_COLLECTION_gpt5 = "cases_summary"
+# STATUTES_COLLECTION_gpt5 = "rules_statutes"
+
+#Collection names gemini
+CASES_COLLECTION_GEMINI = "cases_full_gemini"
+SUMMARY_COLLECTION_GEMINI = "cases_summary_gemini"
+STATUTES_COLLECTION_GEMINI = "rules_statutes_gemini"
+
+SUMMARY_GEMINI_JSONL = str((Path(__file__).resolve().parent.parent / "out_summaries" / "case_summaries_gemini_v3.jsonl").resolve())
+SUMMARY_JSONL = str((Path(__file__).resolve().parent.parent / "out_summaries" / "case_summaries_gemini_v3.jsonl").resolve())
 
 # Summary sizing controls - from Config
-SUMMARY_INDEX_BATCH_SIZE = 512
-
-# HTML conversion defaults
-HTML_INPUT_DIR = "./cases/FamCA"
-HTML_MD_OUTPUT_DIR = "./AustLII_cases_md_famca"
-HTML_MD_TREE_OUTPUT_DIR = "./AustLII_cases_md_famca_tree"
+SUMMARY_INDEX_BATCH_SIZE = 30
 
 """Summary generation helpers are centralized in summary_pipeline.py.
 
@@ -76,530 +88,160 @@ def setup_logging() -> None:
 
 logger = logging.getLogger("build_embeddings")
 
+#logging functions for failed cases summaries&embeddings
+def log_fullcase_embeddings_failure(path_stem: str, error_message: str):
+    """Appends the failed filename and error to a log file."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_path = os.path.join(SCRIPT_LOG_DIR, "failed_ingestion_fullcaseembeddings.log")
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(f"[{timestamp}] FILE: {path_stem} | ERROR: {error_message}\n")
+        
+def log_summaries_failure(path_stem: str, error_message: str):
+    """Appends the failed filename and error to a log file."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_path = os.path.join(SCRIPT_LOG_DIR, "failed_case_summaries.log")
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(f"[{timestamp}] FILE: {path_stem} | ERROR: {error_message}\n")
 
-def init_embeddings():
-    Settings.embed_model = OpenAIEmbedding(model=Config.OPENAI_EMBED_MODEL)
+def log_summaries_embedding_failure(path_stem: str, section_name: str, error_message: str):
+    """Appends the failed filename and error to a log file."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_path = os.path.join(SCRIPT_LOG_DIR, "failed_ingestion_summariesembedding.log")
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(f"[{timestamp}] FILE: {path_stem} |{section_name}| ERROR: {error_message}\n")
 
-
-def austlii_html_to_text(html: str) -> str:
-    soup = BeautifulSoup(html, "lxml")
-
-    article = soup.select_one("article.the-document")
-    if not article:
-        article = soup.body or soup
-
-    for tag in article.select("script, style"):
-        tag.decompose()
-
-    def clean(s: str) -> str:
-        return re.sub(r"\s+", " ", s or "").strip()
-
-    lines = []
-
-    for el in article.find_all(["p", "li"], recursive=True):
-        if el.name == "p":
-            cls = el.get("class") or []
-            txt = clean(el.get_text(" ", strip=True))
-            if not txt:
-                continue
-
-            if txt.lower().startswith("last updated:"):
-                continue
-
-            if "h1" in cls:
-                lines.append(f"## {txt}")
-            elif "h2" in cls:
-                lines.append(f"### {txt}")
-            else:
-                lines.append(txt)
-
-        elif el.name == "li":
-            num = el.get("value")
-            txt = clean(el.get_text(" ", strip=True))
-            if not txt:
-                continue
-
-            if num is not None and str(num).isdigit():
-                lines.append(f"[{num}] {txt}")
-            else:
-                lines.append(f"- {txt}")
-
-    seen = set()
-    deduped = []
-    for line in lines:
-        if line not in seen:
-            seen.add(line)
-            deduped.append(line)
-
-    text = "\n".join(deduped)
-    text = re.sub(r"\n{3,}", "\n\n", text).strip()
-
-    return text
-
-# --- add near the other conversion functions ---
-def convert_html_tree_trafilatura(
-    input_dir: str,
-    output_dir: str,
-    *,
-    workers: int = 4,
-    queue_size: int = 200,
-) -> None:
-    return convert_html_folder_tree(
-        input_dir,
-        output_dir,
-        workers=workers,
-        queue_size=queue_size,
+def load_cases_documents(folder: str, batch_size: int = 20, existing_fullcase_chunk: set = None) -> Iterable[List[Document]]:
+    # We use a Markdown-specific splitter to keep headers and paragraphs together
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=2500,  
+        chunk_overlap=300, # Small overlap to maintain context between chunks
+        separators=["\n# ", "\n## ", "\n### ", "\n\n", "\n", " "]
     )
-
-def extract_legal_catchwords(html_content: str) -> str:
-    """
-    Extracts the 'Catchwords' section commonly found in AustLII cases.
-    Best-effort fallback if metadata misses it.
-    """
-    if "Catchwords:" in html_content:
-        parts = html_content.split("Catchwords:", 1)
-        catchwords = parts[1].split("<", 1)[0].strip()
-        return catchwords
-    return ""
-
-
-
-def convert_html_folder_trafilatura(
-    input_dir: str,
-    output_dir: str,
-    *,
-    existing_dir: str | None = None,
-    workers: int = 4,
-    queue_size: int = 200,
-) -> None:
-    input_path = Path(input_dir)
-    output_path = Path(output_dir)
-    existing_path = Path(existing_dir) if existing_dir else None
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    if not input_path.exists():
-        logger.error("HTML input folder does not exist: %s", input_path)
-        return
-
-    files = sorted(input_path.rglob("*.html"))
-    logger.info("Found %s HTML files in %s", len(files), input_path)
-    if not files:
-        return
-
-    prefix = input_path.name or "FamCA"
-    q: queue.Queue = queue.Queue(maxsize=queue_size)
-    stop_token = object()
-
-    def producer():
-        for fp in files:
-            q.put(fp)
-        for _ in range(workers):
-            q.put(stop_token)
-
-    def consumer(worker_id: int):
-        while True:
-            item = q.get()
-            if item is stop_token:
-                q.task_done()
-                break
-            file_path: Path = item
-            try:
-                year = file_path.parent.name or "unknown"
-                folder_name = f"{prefix}_{year}"
-                out_dir = output_path / folder_name
-                out_dir.mkdir(parents=True, exist_ok=True)
-                out_name = f"{folder_name}_{file_path.stem}.md"
-                out_path = out_dir / out_name
-                if existing_path:
-                    existing_md = existing_path / out_name
-                    if existing_md.exists():
-                        logger.info("Skipped (already converted): %s", file_path)
-                        continue
-                if out_path.exists():
-                    logger.info("Skipped (already converted): %s", file_path)
-                    continue
-                html_content = file_path.read_text(encoding="utf-8", errors="ignore")
-                clean_text = trafilatura.extract(
-                    html_content,
-                    include_tables=True,
-                    include_formatting=True,
-                    output_format="markdown",
-                )
-                if not clean_text:
-                    logger.warning("No content extracted from: %s", file_path)
-                    continue
-
-                metadata = trafilatura.extract_metadata(html_content)
-                title = metadata.title if metadata and metadata.title else file_path.stem
-                date = metadata.date if metadata and metadata.date else "Unknown"
-                catchwords = extract_legal_catchwords(html_content)
-
-                header_lines = [f"# {title}"]
-                header_lines.append(f"**Date:** {date}")
-                if catchwords:
-                    header_lines.append(f"**Catchwords:** {catchwords}")
-                header_lines.append("")
-
-                markdown = "\n".join(header_lines) + clean_text.strip() + "\n"
-                out_path.write_text(markdown, encoding="utf-8")
-                logger.info("Converted to markdown: %s", file_path)
-            except Exception:
-                logger.exception("Failed to convert HTML file: %s", file_path)
-            finally:
-                q.task_done()
-
-    prod = threading.Thread(target=producer, daemon=True)
-    prod.start()
-    consumers = [threading.Thread(target=consumer, args=(i,), daemon=True) for i in range(workers)]
-    for c in consumers:
-        c.start()
-
-    q.join()
-    prod.join()
-    for c in consumers:
-        c.join()
-
-def convert_html_folder(
-    input_dir: str,
-    output_dir: str,
-    existing_dir: str | None = None,
-) -> None:
-    input_path = Path(input_dir)
-    output_path = Path(output_dir)
-    existing_path = Path(existing_dir) if existing_dir else None
-
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    if not input_path.exists():
-        logger.error("HTML input folder does not exist: %s", input_path)
-        return
-
-    html_files = sorted(input_path.glob("*.html"))
-    logger.info("Found %s HTML files in %s", len(html_files), input_path)
-
-    for file_path in html_files:
-        try:
-            existing_md = existing_path / f"{file_path.stem}.md" if existing_path else None
-            new_md = output_path / f"{file_path.stem}.md"
-            if (existing_md and existing_md.exists()) or new_md.exists():
-                logger.info("Skipped (already converted): %s", file_path.name)
-                continue
-
-            html_content = file_path.read_text(encoding="utf-8", errors="ignore")
-            clean_text = trafilatura.extract(
-                html_content,
-                include_tables=True,
-                include_formatting=True,
-                output_format="markdown",
-            )
-            if not clean_text:
-                logger.warning("No content extracted from: %s", file_path.name)
-                continue
-
-            metadata = trafilatura.extract_metadata(html_content)
-            title = metadata.title if metadata and metadata.title else file_path.stem
-            date = metadata.date if metadata and metadata.date else "Unknown"
-            catchwords = extract_legal_catchwords(html_content)
-
-            header_lines = [f"# {title}"]
-            header_lines.append(f"**Date:** {date}")
-            if catchwords:
-                header_lines.append(f"**Catchwords:** {catchwords}")
-            header_lines.append("")
-
-            markdown = "\n".join(header_lines) + clean_text.strip() + "\n"
-            new_md.write_text(markdown, encoding="utf-8")
-            logger.info("Converted to markdown: %s", file_path.name)
-        except Exception:
-            logger.exception("Failed to convert HTML file: %s", file_path)
-
-
-def convert_html_folder_tree(
-    input_dir: str,
-    output_dir: str,
-    *,
-    workers: int = 4,
-    queue_size: int = 200,
-) -> None:
-    input_path = Path(input_dir)
-    output_path = Path(output_dir)
-
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    if not input_path.exists():
-        logger.error("HTML input folder does not exist: %s", input_path)
-        return
-
-    files = sorted(input_path.rglob("*.html"))
-    logger.info("Found %s HTML files in %s", len(files), input_path)
-    if not files:
-        return
-
-    prefix = input_path.name or "FamCA"
-    q: queue.Queue = queue.Queue(maxsize=queue_size)
-    stop_token = object()
-
-    def producer():
-        for fp in files:
-            q.put(fp)
-        for _ in range(workers):
-            q.put(stop_token)
-
-    def consumer(worker_id: int):
-        while True:
-            item = q.get()
-            if item is stop_token:
-                q.task_done()
-                break
-            file_path: Path = item
-            try:
-                year = file_path.parent.name or "unknown"
-                folder_name = f"{prefix}_{year}"
-                out_dir = output_path / folder_name
-                out_dir.mkdir(parents=True, exist_ok=True)
-                out_name = f"{folder_name}_{file_path.stem}.md"
-                out_path = out_dir / out_name
-
-                html_content = file_path.read_text(encoding="utf-8", errors="ignore")
-                clean_text = trafilatura.extract(
-                    html_content,
-                    include_tables=True,
-                    include_formatting=True,
-                    output_format="markdown",
-                )
-                if not clean_text:
-                    logger.warning("No content extracted from: %s", file_path)
-                    continue
-
-                metadata = trafilatura.extract_metadata(html_content)
-                title = metadata.title if metadata and metadata.title else file_path.stem
-                date = metadata.date if metadata and metadata.date else "Unknown"
-                catchwords = extract_legal_catchwords(html_content)
-
-                header_lines = [f"# {title}"]
-                header_lines.append(f"**Date:** {date}")
-                if catchwords:
-                    header_lines.append(f"**Catchwords:** {catchwords}")
-                header_lines.append("")
-
-                markdown = "\n".join(header_lines) + clean_text.strip() + "\n"
-                out_path.write_text(markdown, encoding="utf-8")
-                logger.info("Converted to markdown: %s", file_path)
-            except Exception:
-                logger.exception("Failed to convert HTML file: %s", file_path)
-            finally:
-                q.task_done()
-
-    prod = threading.Thread(target=producer, daemon=True)
-    prod.start()
-    consumers = [threading.Thread(target=consumer, args=(i,), daemon=True) for i in range(workers)]
-    for c in consumers:
-        c.start()
-
-    q.join()
-    prod.join()
-    for c in consumers:
-        c.join()
-
-
-def load_cases_documents(folder: str, skip_sources: set[str] | None = None) -> List[Document]:
-    docs: List[Document] = []
-    for path in Path(folder).rglob("*.txt"):
-        if skip_sources and path.stem in skip_sources:
-            continue
-        try:
-            text = path.read_text(encoding="utf-8", errors="ignore")
-            if not text.strip():
-                logger.warning("Empty case file skipped: %s", path)
-                continue
-            docs.append(
-                Document(
-                    text=text,
-                    metadata={
-                        "source_type": "case",
-                        "source": path.stem,
-                    },
-                )
-            )
-        except Exception:
-            logger.exception("Failed to read case file: %s", path)
+    current_batch = []
+    existing_fullcase_chunk = existing_fullcase_chunk or set()
     for path in Path(folder).rglob("*.md"):
-        if skip_sources and path.stem in skip_sources:
-            continue
-        try:
-            text = path.read_text(encoding="utf-8", errors="ignore")
-            if not text.strip():
-                logger.warning("Empty case file skipped: %s", path)
-                continue
-            docs.append(
-                Document(
-                    text=text,
-                    metadata={
-                        "source_type": "case",
-                        "source": path.stem,
-                        "format": "markdown",
-                    },
-                )
-            )
-        except Exception:
-            logger.exception("Failed to read case file: %s", path)
-    return docs
+        print(f"Checking file: {path.name}")
+        if path.stem not in existing_fullcase_chunk:
+            try:
+                text = path.read_text(encoding="utf-8", errors="ignore")
+                # --- 3. Semantic Chunking ---
+                # This turns one 5,000-word file into multiple searchable Document objects
+                chunks = text_splitter.split_text(text)
+                
+                for i, chunk_content in enumerate(chunks):
+                    current_batch.append(Document(
+                            text=f"SOURCE CASE: {path.stem}\n---\n{chunk_content}",
+                            metadata={"case_name": path.stem, "chunk_index": i}
+                        ))
+                    
+                if len(current_batch) >= batch_size:
+                        yield current_batch
+                        current_batch = []
+            except Exception as e:
+                raise e
+    if current_batch:
+        yield current_batch
 
-
-def load_statutes_documents(jsonl_path: str) -> List[Document]:
-    docs: List[Document] = []
-    with open(jsonl_path, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            row = json.loads(line)
-            docs.append(
-                Document(
-                    text=row["text"],
-                    metadata={
-                        "source_type": row.get("source_type", "statute"),
-                        "act": row.get("act"),
-                        "compilation_date": row.get("compilation_date"),
-                        "section_id": row.get("section_id"),
-                        "section_title": row.get("section_title"),
-                        "part": row.get("part"),
-                        "division": row.get("division"),
-                        "subdivision": row.get("subdivision"),
-                        "chunk_id": row.get("chunk_id"),
-                        "source_file": row.get("source_file"),
-                    },
-                )
-            )
-    return docs
-
-
-def build_index(
-    docs: Iterable[Document],
-    db_path: str,
-    collection_name: str,
-    chunk_size: int,
-    chunk_overlap: int,
-):
-    chroma_client = chromadb.PersistentClient(path=db_path)
-    collection = chroma_client.get_or_create_collection(
-        name=collection_name,
-        metadata={"hnsw:space": "cosine"},
-    )
-    vector_store = ChromaVectorStore(chroma_collection=collection)
-    storage_context = StorageContext.from_defaults(vector_store=vector_store)
-
-    index = VectorStoreIndex.from_documents(
-        list(docs),
-        storage_context=storage_context,
-        transformations=[SentenceSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)],
-    )
-    index.storage_context.persist(persist_dir=db_path)
-    print(f"Indexed {collection.count()} vectors into {db_path} ({collection_name})")
-
-
-def get_existing_case_sources(db_path: str, collection_name: str) -> set[str]:
-    chroma_client = chromadb.PersistentClient(path=db_path)
-    collection = chroma_client.get_or_create_collection(
-        name=collection_name,
-        metadata={"hnsw:space": "cosine"},
-    )
-    existing_sources: set[str] = set()
-    if collection.count() == 0:
-        return existing_sources
-
-    results = collection.get(include=["metadatas"])
-    for meta in results.get("metadatas", []) or []:
-        if not meta:
-            continue
-        source = meta.get("source")
-        if source:
-            existing_sources.add(str(source))
-    return existing_sources
-
-
-def build_summary_index(rows: List[dict]) -> None:
+def get_existing_case_sections_inCollection(chroma_collection) -> set[tuple[str, str]]:
     """
-    Build the cases_summary collection with impact_analysis metadata.
+    Retrieves all unique (case_name, summary_section) pairs from the ChromaDB collection.
+    This allows us to skip only sections that are already embedded, not entire cases.
     """
-    Settings.embed_model = OpenAIEmbedding(model=Config.OPENAI_EMBED_MODEL)
-    chroma_client = chromadb.PersistentClient(path=DB_DIR)
-    collection = chroma_client.get_or_create_collection(
-        name=SUMMARY_COLLECTION,
-        metadata={"hnsw:space": "cosine"},
-    )
-    vector_store = ChromaVectorStore(chroma_collection=collection)
-    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    existing_pairs = set()
+    
+    count = chroma_collection.count()
+    if count == 0:
+        return existing_pairs
 
-    def iter_summary_documents():
-        for row in rows:
-            # Extract impact_analysis and convert to string
-            raw_summary = row.get("summary", {})
-            impact_text = "No analysis provided."
-            if isinstance(raw_summary, dict):
-                impact_dict = raw_summary.get("impact_analysis", {})
-                if isinstance(impact_dict, dict):
-                    # Convert dict to readable string
-                    parts = []
-                    for finding in impact_dict.get("pivotal_findings", []):
-                        if finding:
-                            parts.append(f"Finding: {finding}")
-                    for pivot in impact_dict.get("statutory_pivots", []):
-                        if pivot:
-                            parts.append(f"Pivot: {pivot}")
-                    impact_text = "; ".join(parts) if parts else "No analysis provided."
-                elif isinstance(impact_dict, str):
-                    impact_text = impact_dict
+    print(f"Fetching metadata for {count} chunks to identify existing case sections...")
+    
+    batch_size = 5000 
+    for offset in range(0, count, batch_size):
+        results = chroma_collection.get(
+            include=["metadatas"],
+            limit=batch_size,
+            offset=offset
+        )
+        
+        if results and results.get("metadatas"):
+            for meta in results["metadatas"]:
+                case_name = meta.get("case_name")
+                section_name = meta.get("summary_section")
+                if case_name and section_name:
+                    existing_pairs.add((case_name, section_name))
+                    
+    print(f"Found {len(existing_pairs)} unique (case, section) pairs already in the index.")
+    return existing_pairs
 
-            summary_sections = row.get("summary_sections") or []
-            if isinstance(summary_sections, list) and summary_sections:
-                for section in summary_sections:
-                    text = section.get("text")
-                    if not text: continue
-                    yield Document(
-                        text=text,
-                        metadata={
-                            "source_type": "case_summary",
-                            "source": row["case_id"],
-                            "case_id": row["case_id"],
-                            "case_name": row["case_name"],
-                            "summary_section": section.get("section", "unknown"),
-                            "impact_analysis": impact_text,
-                        },
-                    )
 
-    index = None
-    batch: List[Document] = []
-    for doc in iter_summary_documents():
-        batch.append(doc)
-        if len(batch) >= SUMMARY_INDEX_BATCH_SIZE:
-            if index is None:
-                index = VectorStoreIndex.from_documents(
-                    batch,
-                    storage_context=storage_context,
-                )
-            else:
-                for doc in batch:
-                    index.insert(doc)
-            batch = []
+def get_existing_case_names_inCollection(chroma_collection) -> set:
+    """
+    Retrieves all unique case_name values from the ChromaDB collection.
+    """
+    existing_names = set()
+    
+    # We use .get() but only include 'metadatas' to keep the response lightweight
+    # By default, Chroma has a limit, so we check if we need to paginate
+    count = chroma_collection.count()
+    if count == 0:
+        return existing_names
 
-    if batch:
-        if index is None:
-            index = VectorStoreIndex.from_documents(
-                batch,
-                storage_context=storage_context,
-            )
-        else:
-            for doc in batch:
-                index.insert(doc)
+    print(f"Fetching metadata for {count} chunks to identify existing cases...")
+    
+    # Fetch in batches if your collection is very large (e.g., > 10,000 chunks)
+    batch_size = 5000 
+    for offset in range(0, count, batch_size):
+        results = chroma_collection.get(
+            include=["metadatas"],
+            limit=batch_size,
+            offset=offset
+        )
+        
+        # Extract the 'case_name' from each chunk's metadata
+        if results and results.get("metadatas"):
+            for meta in results["metadatas"]:
+                if "case_name" in meta:
+                    existing_names.add(meta["case_name"])
+                    
+    print(f"Found {len(existing_names)} unique cases already in the index.")
+    return existing_names
 
-    if index is None:
-        print("No summaries to index.")
-        return
-
-    index.storage_context.persist(persist_dir=DB_DIR)
-    print(f"Indexed {collection.count()} summaries into {DB_DIR} ({SUMMARY_COLLECTION})")
-
+def get_existing_case_ids_from_jsonl(jsonl_path: str) -> set:
+    """
+    Extract all case_id values from a JSONL file.
+    
+    Args:
+        jsonl_path: Path to the case_summaries.jsonl file
+        
+    Returns:
+        Set of case_id strings found in the JSONL file
+    """
+    existing_ids = set()
+    jsonl_file = Path(jsonl_path)
+    
+    if not jsonl_file.exists():
+        print(f"JSONL file not found: {jsonl_path}")
+        return existing_ids
+    
+    try:
+        with open(jsonl_file, 'r', encoding='utf-8') as f:
+            for line_num, line in enumerate(f, 1):
+                line = line.strip()
+                if not line:
+                    continue
+                
+                try:
+                    data = json.loads(line)
+                    if isinstance(data, dict) and 'case_id' in data:
+                        existing_ids.add(data['case_id'])
+                except json.JSONDecodeError as e:
+                    print(f"Warning: Invalid JSON on line {line_num}: {e}")
+                    continue
+    
+    except Exception as e:
+        print(f"Error reading JSONL file: {e}")
+    
+    return existing_ids
 
 def ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
@@ -615,180 +257,506 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="ignore")
 
 
-def write_jsonl(path: str, rows: List[dict]) -> None:
-    with open(path, "w", encoding="utf-8") as f:
+def read_existing_summary_ids(path: str) -> set[str]:
+    """Read existing case_ids from the summaries JSONL to avoid re-processing."""
+    ids: set[str] = set()
+    if not os.path.exists(path):
+        return ids
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+                case_id = row.get("case_id")
+                if case_id:
+                    ids.add(str(case_id))
+            except json.JSONDecodeError:
+                continue
+    return ids
+
+
+def write_jsonl(path: str, rows: List[dict], *, append: bool = False) -> None:
+    mode = "a" if append else "w"
+    with open(path, mode, encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
 
-def run_case_summaries(
-    cases_dir: str = CASES_TXT_DIR,
-    skip_case_ids: set[str] | None = None,
-) -> None:
-    """
-    Generate summaries for cases and build the cases_summary collection.
-    """
-    ensure_dir(os.path.dirname(SUMMARY_JSONL))
-    Settings.llm = OpenAI(model=Config.OPENAI_MODEL, temperature=0.1)
-    llm = Settings.llm
+def get_existing_case_sources(db_path: str, collection_name: str) -> set[str]:
+    chroma_client = chromadb.PersistentClient(path=db_path)
+    collection = chroma_client.get_or_create_collection(
+        name=collection_name,
+        metadata={"hnsw:space": "cosine"},
+    )
+    total_count = collection.count()
+    print(f"Collection '{collection_name}' has {total_count} total entries.")
+    existing_sources: set[str] = set()
+    
+    if total_count == 0:
+        return existing_sources
 
-    rows = []
+    # FIX: Explicitly set the limit to the total count of the collection
+    results = collection.get(
+        include=["metadatas"],
+        limit=total_count  # This ensures you don't stop at 100
+    )
+    
+    existing_sources = {
+        str(meta.get("case_name")) 
+        for meta in results.get("metadatas", []) 
+        if meta and meta.get("case_name")
+    }
+            
+    print(f"Verified {len(existing_sources)} unique cases already in {collection_name}")
+    return existing_sources
+
+#embeddings creation
+def create_embeddings_for_full_cases_gemini(folder: str) -> None:
+    """
+    Build the full case collection using Gemini Embedding 2 (3072-dim).
+    Includes a skip-logic to avoid re-paying for existing embeddings.
+    """
+    # 1. Global Gemini Configuration
+    # Using 'preview' for the latest v2 high-accuracy model
+    Settings.embed_model = GoogleGenAIEmbedding(
+        model_name=f"models/{Config.GEMINI_EMBED_MODEL}",
+        api_key=os.environ.get("GOOGLE_API_KEY"),
+        output_dimensionality=3072  # Explicitly set for maximum legal accuracy
+    )
+    
+    db = chromadb.PersistentClient(path=DB_DIR)
+
+    # 2. Setup/Connect to the Gemini Collection
+    chroma_collection = db.get_or_create_collection(
+        name=CASES_COLLECTION_GEMINI, 
+        metadata={"hnsw:space": "cosine"}
+    )
+    embedded_case_names = get_existing_case_names_inCollection(chroma_collection)
+
+    vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+    full_storage_context = StorageContext.from_defaults(vector_store=vector_store)
+
+    # 3. Initialize the Index
+    full_index = VectorStoreIndex(
+        nodes=[], 
+        storage_context=full_storage_context
+    )
+
+    # 4. Processing Loop
+    for batch_docs in load_cases_documents(folder, batch_size=50, existing_fullcase_chunk=embedded_case_names):
+        # We check the first document in the batch; if it's already indexed, 
+        try:
+            # This triggers the API call to Gemini
+            full_index.insert_nodes(batch_docs)
+        except Exception as e:
+            failed_stems = list(set([doc.metadata.get("case_name", "Unknown") for doc in batch_docs]))
+            error_msg = f"Gemini API/DB Error: {str(e)}"
+            # Log failure for manual review
+            log_fullcase_embeddings_failure(str(failed_stems), error_msg)
+
+    # 5. Final Persist
+    full_index.storage_context.persist(persist_dir=DB_DIR)
+    print(f"Index complete. Total cases in {CASES_COLLECTION_GEMINI}: {chroma_collection.count()}")
+
+# This is to create the case summaries embeddings based on json file
+def build_summary_embeddings_from_jsonl(jsonl_path: str) -> None:
+    """
+    Stream-read case summaries from JSONL and embed directly — no bulk loading.
+    """
+    jsonl_file = Path(jsonl_path)
+    if not jsonl_file.exists():
+        print(f"JSONL file not found: {jsonl_path}")
+        return
+
+    # 1. Initialize Gemini Embedding Model
+    Settings.embed_model = GoogleGenAIEmbedding(
+        model_name=f"models/{Config.GEMINI_EMBED_MODEL}",
+        api_key=os.environ.get("GOOGLE_API_KEY"),
+        output_dimensionality=3072,
+    )
+
+    # 2. Setup ChromaDB
+    chroma_client = chromadb.PersistentClient(path=DB_DIR)
+    collection = chroma_client.get_or_create_collection(
+        name=SUMMARY_COLLECTION_GEMINI,
+        metadata={"hnsw:space": "cosine"},
+    )
+
+    # 3. Get existing (case_name, section_name) pairs — section-level skip logic
+    existing_sections = get_existing_case_sections_inCollection(collection)
+
+    vector_store = ChromaVectorStore(chroma_collection=collection)
+    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+
+    index = None
+    batch: List[Document] = []
+    total_docs = 0
+    skipped = 0
+
+    # 4. Stream directly from file — no rows list in memory
+    with open(jsonl_file, "r", encoding="utf-8") as f:
+        for line_num, line in enumerate(f, 1):
+            line = line.strip()
+            if not line:
+                continue
+
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as e:
+                log_summaries_embedding_failure(f"line_{line_num}", "json_parse", str(e))
+                continue
+
+            case_id = row.get("case_id", "unknown")
+
+            # Yield sections directly into the batch, skipping already-embedded sections
+            summary_sections = row.get("summary_sections") or {}
+            for section_name, section_text in summary_sections.items():
+                if not section_text or not isinstance(section_text, str):
+                    continue
+
+                # Skip this specific (case, section) if already embedded
+                if (case_id, section_name) in existing_sections:
+                    skipped += 1
+                    continue
+
+                batch.append(Document(
+                    text=section_text,
+                    metadata={
+                        "case_name": case_id,
+                        "summary_section": section_name,
+                    },
+                ))
+
+            # Flush batch when full
+            if len(batch) >= SUMMARY_INDEX_BATCH_SIZE:
+                try:
+                    if index is None:
+                        index = VectorStoreIndex.from_documents(
+                            batch, storage_context=storage_context, show_progress=True,
+                        )
+                    else:
+                        index.insert_nodes(batch)
+                    total_docs += len(batch)
+                    print(f"  Embedded {total_docs} sections so far...")
+                except Exception as e:
+                    for failed_doc in batch:
+                        log_summaries_embedding_failure(
+                            failed_doc.metadata.get("case_name", "unknown"),
+                            failed_doc.metadata.get("summary_section", "unknown"),
+                            str(e),
+                        )
+                batch = []
+
+    # Handle remaining
+    if batch:
+        try:
+            if index is None:
+                index = VectorStoreIndex.from_documents(batch, storage_context=storage_context)
+            else:
+                index.insert_nodes(batch)
+            total_docs += len(batch)
+        except Exception as e:
+            for failed_doc in batch:
+                log_summaries_embedding_failure(
+                    failed_doc.metadata.get("case_name", "unknown"),
+                    failed_doc.metadata.get("summary_section", "unknown"),
+                    str(e),
+                )
+
+    if index is None:
+        print("No new summaries to index.")
+        return
+
+    index.storage_context.persist(persist_dir=DB_DIR)
+    print(f"SUCCESS: Embedded {total_docs} sections (skipped {skipped} existing cases)")
+
+def build_statutes_embeddings_gemini(jsonl_path: str = STATUTES_JSONL) -> None:
+    """
+    Build the rules_statutes_gemini collection from a statutes JSONL file.
+    """
+    # 1. Initialize Gemini Embedding Model
+    Settings.embed_model = GoogleGenAIEmbedding(
+        model_name=f"models/{Config.GEMINI_EMBED_MODEL}",
+        api_key=os.environ.get("GOOGLE_API_KEY"),
+        output_dimensionality=3072,
+    )
+
+    # 2. Load all statute documents
+    docs = load_statutes_documents(jsonl_path)
+    if not docs:
+        print("No statute documents found.")
+        return
+
+    print(f"Loaded {len(docs)} statute sections from {jsonl_path}")
+
+    # 3. Setup ChromaDB
+    chroma_client = chromadb.PersistentClient(path=DB_DIR)
+    collection = chroma_client.get_or_create_collection(
+        name=STATUTES_COLLECTION_GEMINI,
+        metadata={"hnsw:space": "cosine"},
+    )
+
+    existing_count = collection.count()
+    if existing_count > 0:
+        print(f"Collection already has {existing_count} entries. Skipping rebuild.")
+        print("Run reset_collection() first if you want to rebuild.")
+        return
+
+    vector_store = ChromaVectorStore(chroma_collection=collection)
+    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+
+    # 4. Batch-insert into index
+    index = None
+    batch_size = 50
+    total = 0
+
+    for i in range(0, len(docs), batch_size):
+        batch = docs[i : i + batch_size]
+        try:
+            if index is None:
+                index = VectorStoreIndex.from_documents(
+                    batch,
+                    storage_context=storage_context,
+                    show_progress=True,
+                )
+            else:
+                index.insert_nodes(batch)
+            total += len(batch)
+            print(f"  Embedded {total}/{len(docs)} statute sections...")
+        except Exception as e:
+            failed_ids = [d.metadata.get("section_id", "?") for d in batch]
+            logger.error(f"Failed to embed statute batch ({failed_ids}): {e}")
+            time.sleep(2)
+
+    if index is None:
+        print("No statutes indexed.")
+        return
+
+    # 5. Persist
+    index.storage_context.persist(persist_dir=DB_DIR)
+    print(f"SUCCESS: Indexed {collection.count()} statute sections into {STATUTES_COLLECTION_GEMINI}")
+
+def load_statutes_documents(jsonl_path: str) -> List[Document]:
+    docs: List[Document] = []
+    with open(jsonl_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            row = json.loads(line)
+            docs.append(
+                Document(
+                    text=row["text"],
+                    metadata={
+                        "source_type": row.get("source_type", "statute"),
+                        "act": row.get("act"),
+                        "section_id": row.get("section_id"),
+                        "section_title": row.get("section_title"),
+                        "part": row.get("part"),
+                        "division": row.get("division"),
+                        "subdivision": row.get("subdivision"),
+                        "chunk_id": row.get("chunk_id")
+                    },
+                )
+            )
+    return docs
+
+def _get_summary_jsonl_for_dir(cases_dir: str, override_jsonl: str = None) -> str:
+    """
+    Derive the JSONL output path from the input directory name.
+    e.g. .../FamCA_2018 → out_summaries/case_summaries_gemini_v3_2018.jsonl
+         .../FamCA_2020 → out_summaries/case_summaries_gemini_v3_2020.jsonl
+    Falls back to SUMMARY_GEMINI_JSONL if no year is found.
+    """
+    if override_jsonl:
+        return override_jsonl
+
+    import re
+    folder_name = Path(cases_dir).name  # e.g. "FamCA_2018"
+    match = re.search(r"(\d{4})", folder_name)
+    if match:
+        year = match.group(1)
+        return str((Path(__file__).resolve().parent.parent / "out_summaries" / f"case_summaries_gemini_v3_{year}.jsonl").resolve())
+    return SUMMARY_GEMINI_JSONL
+
+def run_case_summaries_only(cases_dir: str = CASES_TXT_DIR, override_jsonl: str = None) -> None:
+    """
+    Step 1 ONLY: Generate summaries → write to JSONL.
+    Fully resumable — skips cases already in the JSONL file.
+    Does NOT embed. Run embed_summaries separately after this completes.
+    """
+    jsonl_path = _get_summary_jsonl_for_dir(cases_dir, override_jsonl)
+    ensure_dir(os.path.dirname(jsonl_path))
+    print(f"Output JSONL: {jsonl_path}")
+    llm = GoogleGenAI(
+            model=f"models/{Config.GEMINI_MODEL}",
+            api_key=os.environ.get("GOOGLE_API_KEY"),
+            
+            model_kwargs={
+                "thinking_config": {"thinking_level": "medium"},
+                "response_mime_type": "application/json", # FORCES structured output
+                "top_p": 0.2,                             # Relaxed slightly to allow for detailed "Entities"
+                "max_output_tokens": 8192,                # Room for 1,200+ word summaries
+            },
+            
+            temperature=0.2,      # Low enough for JSON logic, high enough for nuanced legal writing
+            timeout=300.0,        # Thinking mode adds latency; 5 mins is the new safe standard
+            max_retries=12,
+            transport="rest"
+        )
+
+    # Fallback LLM for cases where Gemini refuses (no candidates / content filtering)
+    fallback_llm = OpenAI(
+        model=Config.OPENAI_MODEL,
+        temperature=0.1,
+        timeout=300.0,
+        max_retries=2,
+    )
+
+    # Skip cases already summarized in JSONL
+    existing_summary_ids = get_existing_case_ids_from_jsonl(jsonl_path)
+    print(f"Found {len(existing_summary_ids)} existing summaries in JSONL. Will skip those.")
+
+    processed = 0
+    failed = 0
+    skipped = 0
+
     for path in list_case_files(cases_dir):
-        if skip_case_ids and path.stem in skip_case_ids:
-            logger.info("Skipping summary for already-embedded case: %s", path.stem)
+        if path.stem in existing_summary_ids:
+            skipped += 1
             continue
         try:
             text = read_text(path)
             if not text.strip():
                 logger.warning("Empty case file skipped: %s", path)
                 continue
+
+            print(f"[{processed + failed + skipped + 1}] Processing {path.stem}...")
             summary = generate_summary_dict(
                 text,
-                target_words=Config.AUSTLII_SUMMARY_TARGET_WORDS,
-                max_words=Config.AUSTLII_SUMMARY_MAX_WORDS,
+                path.stem,
                 list_limits_primary=SUMMARY_LIST_LIMITS_PRIMARY,
-                list_limits_fallback=SUMMARY_LIST_LIMITS_FALLBACK,
                 llm=llm,
                 case_name=path.stem,
             )
-
-            summary_sections = summary_json_to_sections(summary)
-            summary_text = []
-            for section in summary_sections:
-                summary_text.append(f"--- {section.get('section', 'Unknown').replace('_', ' ').title()} ---")
-                summary_text.append(section.get('text', ''))
-                summary_text.append('')
-            rows.append(
-                {
+            if Config.ENV == "dev":
+                format_and_log(
+                    "/create_summary",
+                    action="generate_summary_dict using prompt",
+                    data_name="create_summary",
+                    data_content=summary,
+                )
+            if summary:
+                summary_sections = summary_json_to_sections(summary)
+                row = {
                     "case_id": path.stem,
-                    "case_name": path.stem,
-                    "source_file": str(path.resolve()),
-                    "summary": summary,
-                    "summary_text": summary_text,
                     "summary_sections": summary_sections,
                 }
-            )
-            print(f"[OK] {path.name}")
-        except Exception:
-            logger.exception("Failed to summarize case file: %s", path)
+                # Append immediately — so if we crash, progress is saved
+                write_jsonl(jsonl_path, [row], append=True)
+                processed += 1
+                print(f"[OK] {path.stem}")
+            else:
+                logger.warning("Empty summary returned for %s", path.stem)
+                failed += 1
 
-    write_jsonl(SUMMARY_JSONL, rows)
-    build_summary_index(rows)
+            time.sleep(10)  # Rate limit protection
+        except Exception as e:
+            error_msg = str(e).lower()
+            # Retry with OpenAI fallback for Gemini-specific failures
+            if "no candidates" in error_msg or "safety" in error_msg or "blocked" in error_msg or "google" in error_msg or "gemini" in error_msg or "max_tokens" in error_msg:
+                logger.warning("Gemini failed for %s (%s). Falling back to OpenAI model: %s", path.stem, e, Config.OPENAI_MODEL)
+                try:
+                    summary = generate_summary_dict(
+                        text,
+                        path.stem,
+                        list_limits_primary=SUMMARY_LIST_LIMITS_PRIMARY,
+                        llm=fallback_llm,
+                        case_name=path.stem,
+                    )
+                    if summary:
+                        summary_sections = summary_json_to_sections(summary)
+                        row = {
+                            "case_id": path.stem,
+                            "summary_sections": summary_sections,
+                        }
+                        write_jsonl(jsonl_path, [row], append=True)
+                        processed += 1
+                        print(f"[OK-FALLBACK] {path.stem} (via {Config.OPENAI_MODEL})")
+                        time.sleep(10)
+                        continue
+                except Exception as fallback_err:
+                    logger.error("Fallback also failed for %s: %s", path.stem, str(fallback_err))
 
+            logger.error("Failed to process %s: %s", path.stem, error_msg)
+            log_summaries_failure(path.stem, str(e))
+            failed += 1
+            time.sleep(15)
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build embeddings for cases, statutes, and summaries.")
-    parser.add_argument("--convert-html", action="store_true", help="Convert AustLII HTML cases to text.")
-    parser.add_argument(
-        "--convert-html-md",
-        action="store_true",
-        help="Convert AustLII HTML cases to markdown using Trafilatura.",
-    )
-    parser.add_argument(
-        "--convert-html-md-tree",
-        action="store_true",
-        help="Convert HTML tree to markdown with FamCA_YYYY folders and filenames.",
-    )
-    parser.add_argument("--html-dir", help="Folder containing HTML files for conversion.")
-    parser.add_argument("--converted-dir", help="Folder to write converted text files.")
-    parser.add_argument("--existing-converted-dir", help="Folder containing already-converted text files to skip.")
-    parser.add_argument("--cases", action="store_true", help="Build case embeddings.")
-    parser.add_argument("--statutes", action="store_true", help="Build statute embeddings.")
-    parser.add_argument("--summaries", action="store_true", help="Generate case summaries and build summary embeddings.")
-    parser.add_argument("--cases-dir", help="Folder containing case .txt files for embeddings.")
-    parser.add_argument("--summaries-dir", help="Folder containing case .txt files for summary generation.")
-    parser.add_argument(
-        "--skip-existing",
-        action="store_true",
-        help="Skip cases already embedded in the Chroma collection.",
-    )
-    # --- extend parse_args() ---
-    parser.add_argument("--md-tree-output-dir", help="Output dir for HTML tree markdown conversion.")
-    parser.add_argument("--workers", type=int, default=4, help="Number of conversion workers.")
-    parser.add_argument("--queue-size", type=int, default=200, help="Queue size for conversion.")
-    return parser.parse_args()
+    print(f"\n{'='*60}")
+    print(f"  SUMMARY GENERATION COMPLETE")
+    print(f"  Processed: {processed} | Failed: {failed} | Skipped: {skipped}")
+    print(f"{'='*60}")
+    print(f"\nNext step: run --action embed_summaries to embed into ChromaDB")
 
+#to delete certain collections
+def reset_collection(db_path: str, collection_name: str):
+    client = chromadb.PersistentClient(path=db_path)
+    try:
+        # This deletes the collection and all its embeddings/metadata
+        client.delete_collection(name=collection_name)
+        print(f"Successfully deleted collection: {collection_name}")
+    except ValueError:
+        print(f"Collection {collection_name} did not exist. Nothing to delete.")
 
 if __name__ == "__main__":
+    ensure_dir(SCRIPT_LOG_DIR)
     setup_logging()
-    args = parse_args()
-    init_embeddings()
-    summaries_dir = args.summaries_dir or CASES_TXT_DIR
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("google_genai").setLevel(logging.WARNING)
 
-    if args.convert_html_md_tree and not args.summaries_dir:
-        summaries_dir = args.md_tree_output_dir or HTML_MD_TREE_OUTPUT_DIR
-    if not (args.cases or args.statutes or args.summaries):
-        args.cases = args.statutes = args.summaries = True
+    parser = argparse.ArgumentParser(description="SophieAI batch processing CLI")
+    parser.add_argument(
+        "--action",
+        required=True,
+        choices=[
+            "summaries",
+            "embed_summaries",
+            "embed_full_cases",
+            "embed_statutes",
+            "reset_collection",
+        ],
+        help="Which function to run",
+    )
+    parser.add_argument("--input-dir", default=None, help="Override input cases directory")
+    parser.add_argument("--jsonl", default=None, help="JSONL file path for embedding")
+    parser.add_argument("--collection", default=None, help="Collection name (for reset_collection)")
 
-    if args.convert_html_md:
-        html_dir = args.html_dir or HTML_INPUT_DIR
-        converted_dir = args.converted_dir or HTML_MD_OUTPUT_DIR
-        existing_dir = args.existing_converted_dir
-        convert_html_folder_trafilatura(
-            html_dir,
-            converted_dir,
-            existing_dir=existing_dir,
-            workers=args.workers,
-            queue_size=args.queue_size,
-        )
+    args = parser.parse_args()
 
-    if args.convert_html_md_tree:
-        html_dir = args.html_dir or HTML_INPUT_DIR
-        converted_dir = args.md_tree_output_dir or HTML_MD_TREE_OUTPUT_DIR
-        convert_html_tree_trafilatura(
-            html_dir,
-            converted_dir,
-            workers=args.workers,
-            queue_size=args.queue_size,
-        )
+    input_folder = args.input_dir or os.environ.get(
+        "CASES_INPUT_DIR",
+        CASES_TXT_DIR,
+    )
 
-    
+    if args.action == "summaries":
+        # Initialize Gemini LLM for summary generation (1M token context)
+        run_case_summaries_only(input_folder, override_jsonl=args.jsonl)
 
-    cases_dir = args.cases_dir or CASES_TXT_DIR
-    if args.convert_html_md_tree and not args.cases_dir:
-        cases_dir = args.md_tree_output_dir or HTML_MD_TREE_OUTPUT_DIR
+    elif args.action == "embed_summaries":
+        # Step 2 ONLY: embed from JSONL → ChromaDB (resumable via existing case names)
+        jsonl = args.jsonl or SUMMARY_GEMINI_JSONL
+        build_summary_embeddings_from_jsonl(jsonl)
 
+    elif args.action == "embed_full_cases":
+        create_embeddings_for_full_cases_gemini(input_folder)
 
-    if args.cases:
-        skip_sources = set()
-        if args.skip_existing:
-            skip_sources = get_existing_case_sources(DB_DIR, CASES_COLLECTION)
-            print(f"Skipping {len(skip_sources)} already-embedded cases.")
-        case_docs = load_cases_documents(cases_dir, skip_sources=skip_sources)
-        try:
-            build_index(
-                case_docs,
-                db_path=DB_DIR,
-                collection_name=CASES_COLLECTION,
-                chunk_size=Config.CASE_CHUNK_SIZE,
-                chunk_overlap=Config.CASE_CHUNK_OVERLAP,
-            )
-        except Exception:
-            logger.exception("Failed to build case embeddings")
-            raise
+    elif args.action == "embed_statutes":
+        build_statutes_embeddings_gemini(STATUTES_JSONL)
 
-    if args.statutes:
-        statute_docs = load_statutes_documents(STATUTES_JSONL)
-        try:
-            build_index(
-                statute_docs,
-                db_path=DB_DIR,
-                collection_name=STATUTES_COLLECTION,
-                chunk_size=Config.STATUTE_CHUNK_SIZE,
-                chunk_overlap=Config.STATUTE_CHUNK_OVERLAP,
-            )
-        except Exception:
-            logger.exception("Failed to build statute embeddings")
-            raise
-
-    if args.summaries:
-        try:
-            skip_case_ids = set()
-            if args.skip_existing:
-                skip_case_ids = get_existing_case_sources(DB_DIR, SUMMARY_COLLECTION)
-                print(f"Skipping {len(skip_case_ids)} already-embedded summaries.")
-            run_case_summaries(cases_dir=summaries_dir, skip_case_ids=skip_case_ids)
-        except Exception:
-            logger.exception("Failed to build summary embeddings")
-            raise
+    elif args.action == "reset_collection":
+        coll = args.collection or SUMMARY_COLLECTION_GEMINI
+        reset_collection(DB_DIR, coll)
 

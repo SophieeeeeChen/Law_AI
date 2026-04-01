@@ -20,8 +20,15 @@ class Config:
     ENTRA_JWKS_URL = os.environ.get("ENTRA_JWKS_URL")
     # --- OpenAI Models ---
     OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.2")  # ChatGPT model
-    OPENAI_EMBED_MODEL = os.environ.get("OPENAI_EMBED_MODEL", "text-embedding-3-large")  # Embeddings model
-    
+    # --- Synthesis LLM (final answer generation) ---
+    # Provider: "openai", "anthropic", or None/"gemini" (uses Settings.llm)
+    SYNTHESIS_LLM = os.environ.get("SYNTHESIS_LLM", "openai")
+    SYNTHESIS_OPENAI_LLM_MODEL = os.environ.get("SYNTHESIS_OPENAI_LLM_MODEL", "gpt-5.2")  # OpenAI model for synthesis
+    SYNTHESIS_ANTHROPIC_LLM_MODEL = os.environ.get("SYNTHESIS_ANTHROPIC_LLM_MODEL", "claude-sonnet-4-20250514")  # Anthropic model for synthesis
+    # OPENAI_MODEL_claude46sonnet = os.environ.get("OPENAI_MODEL_claude46sonnet", "claude-3-7-sonnet-20250219")
+    # OPENAI_EMBED_MODEL = os.environ.get("OPENAI_EMBED_MODEL", "text-embedding-3-large")  # Embeddings model
+    GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3-flash-preview")  # Gemini model
+    GEMINI_EMBED_MODEL = os.environ.get("GEMINI_EMBED_MODEL", "gemini-embedding-2-preview")  # Gemini embedding model
     # --- Summary Generation ---
     # For large, pre-processed AustLII files
     AUSTLII_SUMMARY_TARGET_WORDS = int(os.environ.get("AUSTLII_SUMMARY_TARGET_WORDS", "1000"))
@@ -29,7 +36,10 @@ class Config:
     # For user-uploaded files (will be dynamically adjusted)
     USER_SUMMARY_TARGET_WORDS = int(os.environ.get("USER_SUMMARY_TARGET_WORDS", "1000"))
     USER_SUMMARY_MAX_WORDS = int(os.environ.get("USER_SUMMARY_MAX_WORDS", "1200"))
-    
+    # --- ChromaDB Collections ---
+    CASES_COLLECTION_GEMINI = "cases_full_gemini"
+    SUMMARY_COLLECTION_GEMINI = "cases_summary_gemini"
+    STATUTES_COLLECTION_GEMINI = "rules_statutes_gemini"
     # --- Chunking Parameters ---
     CASE_CHUNK_SIZE = int(os.environ.get("CASE_CHUNK_SIZE", "1000"))
     CASE_CHUNK_OVERLAP = int(os.environ.get("CASE_CHUNK_OVERLAP", "200"))
@@ -49,10 +59,6 @@ class Config:
             raise RuntimeError("DATABASE_URL must be set when ENV=prd")
         if not CORS_ORIGINS_LIST:
             raise RuntimeError("CORS_ORIGINS must be set when ENV=prd")
-
-    CASES_COLLECTION_NAME = os.environ.get("CASES_COLLECTION_NAME", "cases_full")
-    STATUTES_COLLECTION_NAME = os.environ.get("STATUTES_COLLECTION_NAME", "rules_statutes")
-    SUMMARY_COLLECTION_NAME = os.environ.get("SUMMARY_COLLECTION_NAME", "cases_summary")
 
     # --- Retrieval ---
     TOP_K = 5               # how many docs to retrieve initially
@@ -78,9 +84,8 @@ class Config:
         "5) Do NOT provide legal advice. This is for informational purposes only.\n\n"
         "Case law context snippets (total={context_count}):\n"
         "{context_str}\n"
-        "<|im_end|>\n"
+         "<|im_end|>\n"
         "<|im_start|>user\n"
         "Question: {query_str}\n"
         "<|im_end|>\n"
-        "<|im_start|>assistant\n"
-    )
+        "<|im_start|>assistant\n")

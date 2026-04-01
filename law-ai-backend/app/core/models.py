@@ -1,15 +1,30 @@
 import os
 import logging
-from llama_index.core import Settings, SimpleDirectoryReader, VectorStoreIndex, StorageContext, Document
-from llama_index.core.node_parser import SentenceSplitter
-from llama_index.embeddings.openai import OpenAIEmbedding
+# from llama_index import Document
+from llama_index.core import Document, Settings, StorageContext, VectorStoreIndex
+from llama_index.llms.google_genai import GoogleGenAI
+from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.llms.openai import OpenAI
 import chromadb
 from app.core.logger import logger
 from app.core.config import Config
 
 logging.basicConfig(level=logging.INFO)
+"""
+Law AI Backend - Main Entry Point
+"""
+import os
+
+# Disable telemetry before any LlamaIndex imports
+os.environ.setdefault("POSTHOG_DISABLED", "1")
+os.environ.setdefault("LLAMA_INDEX_DISABLE_TELEMETRY", "1")
+os.environ.setdefault("LLAMA_INDEX_TELEMETRY_ENABLED", "false")
+
+import nest_asyncio
+nest_asyncio.apply()
+
+from fastapi import FastAPI
+# ... rest of your imports ...
 
 class ModelManager:
     def __init__(self):
@@ -27,8 +42,21 @@ class ModelManager:
     def init_models(self):
         if self.llm is None or self.embed_model is None:
             logger.info("Initializing LLM and embeddings...")
-            self.llm = OpenAI(model=Config.OPENAI_MODEL, temperature=0.1)
-            self.embed_model = OpenAIEmbedding(model=Config.OPENAI_EMBED_MODEL)
+            self.llm = GoogleGenAI(
+                model=f"models/{Config.GEMINI_MODEL}",
+                api_key=os.environ.get("GEMINI_API_KEY"),
+                temperature=0.3,
+                timeout=300.0,
+                max_retries=12,
+                transport="rest",
+                model_kwargs={
+                    "max_output_tokens": 8192,
+                },
+            )
+            self.embed_model = GoogleGenAIEmbedding(
+                model_name=f"models/{Config.GEMINI_EMBED_MODEL}",
+                api_key=os.environ.get("GEMINI_API_KEY"),
+            )
             Settings.llm = self.llm
             Settings.embed_model = self.embed_model
         logger.info("LLM and embeddings ready.")
@@ -42,7 +70,7 @@ class ModelManager:
             return self.cases_index
 
         cases_db_dir = self._db_dir()
-        cases_collection_name = Config.CASES_COLLECTION_NAME
+        cases_collection_name = Config.CASES_COLLECTION_GEMINI
 
         logger.info("Initializing cases vector index...")
         chroma_client = chromadb.PersistentClient(path=cases_db_dir)
@@ -69,7 +97,7 @@ class ModelManager:
             return self.statutes_index
 
         statutes_db_dir = self._db_dir()
-        statutes_collection_name = Config.STATUTES_COLLECTION_NAME
+        statutes_collection_name = Config.STATUTES_COLLECTION_GEMINI
 
         logger.info("Initializing statutes vector index...")
         chroma_client = chromadb.PersistentClient(path=statutes_db_dir)
@@ -96,7 +124,7 @@ class ModelManager:
             return self.case_summaries_index
 
         summaries_db_dir = self._db_dir()
-        summaries_collection_name = Config.SUMMARY_COLLECTION_NAME
+        summaries_collection_name = Config.SUMMARY_COLLECTION_GEMINI
 
         logger.info("Initializing case summaries vector index...")
         chroma_client = chromadb.PersistentClient(path=summaries_db_dir)
