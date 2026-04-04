@@ -19,14 +19,7 @@ from llama_index.core.postprocessor import LLMRerank
 from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters, FilterOperator
 
 from app.services.clarify_service import TOPIC_KEYWORDS
-
-try:
-    from llama_index.retrievers.bm25 import BM25Retriever
-except Exception:
-    try:
-        from llama_index.core.retrievers import BM25Retriever
-    except Exception:  # pragma: no cover - optional dependency
-        BM25Retriever = None
+import re
 
 from app.core.config import Config
 
@@ -135,65 +128,132 @@ def _hybrid_retrieve(
     use_rerank: bool,
     *,
     vector_top_k: int | None = None,
-    bm25_top_k: int | None = None,
     metadata_filters=None,
-    limit: int | None = None, # Added a generic limit for easier use
+    limit: int | None = None,
 ):
-    # Use the 'limit' if provided, otherwise fallback to Config
+    """Vector retrieval + optional LLM rerank.
+    """
     v_k = limit or vector_top_k or Config.TOP_K
-    b_k = limit or bm25_top_k or Config.BM25_TOP_K
 
-    # 1. Vector Retrieval (Handles Filters natively)
+    # 1. Vector Retrieval (ChromaDB handles filters natively)
     retriever_kwargs = {"similarity_top_k": v_k}
     if metadata_filters is not None:
         retriever_kwargs["filters"] = metadata_filters
-    
+
     vector_retriever = index.as_retriever(**retriever_kwargs)
     vector_nodes = vector_retriever.retrieve(query)
 
-    # 2. BM25 Retrieval
-    bm25_nodes = []
-    # FIX: Allow BM25 to run even if filters exist. 
-    # Note: LlamaIndex BM25 doesn't always support complex filters natively 
-    # as easily as Vector search, but we should at least try to get keyword matches.
-    if BM25Retriever is not None and b_k > 0:
-        try:
-            # Check if docstore has documents before attempting BM25
-            if hasattr(index, 'docstore') and hasattr(index.docstore, 'docs') and len(index.docstore.docs) > 0:
-                bm25 = BM25Retriever.from_defaults(
-                    docstore=index.docstore,
-                    similarity_top_k=b_k,
-                )
-                bm25_nodes = bm25.retrieve(query)
-                
-                # OPTIONAL: If filters exist, manually filter BM25 results to match
-                if metadata_filters:
-                    bm25_nodes = _apply_manual_filter(bm25_nodes, metadata_filters)
-            else:
-                logger.debug("BM25Retriever skipped: docstore is empty.")
-                
-        except Exception as exc:
-            logger.warning(f"BM25Retriever failed ({exc}); falling back to vector-only.")
-    
-    # 3. Merge and Rerank
-    merged_nodes = _merge_nodes(vector_nodes, bm25_nodes)
-
+    # 2. Rerank (or pass-through)
     if use_rerank and LLMRerank is not None:
         reranker = LLMRerank(top_n=Config.RERANK_TOP_N)
-        merged_nodes = reranker.postprocess_nodes(merged_nodes, query_str=query)
+        vector_nodes = reranker.postprocess_nodes(vector_nodes, query_str=query)
     else:
-        # Standard weighted score merge
+        vector_nodes.sort(key=lambda n: n.score or 0.0, reverse=True)
+
+    return vector_nodes[:limit] if limit else vector_nodes
+
+
+# ---------------------------------------------------------------------------
+#  Statute-specific hybrid: exact section_id keyword match + vector semantic
+# ---------------------------------------------------------------------------
+
+def _normalize_section_ref(raw: str) -> str:
+    """Turn user notations into a Chroma-friendly section key.
+
+    Examples:  's 79' → '79',  'S.79' → '79',  '79(1)' → '79',
+               'section 79' → '79'
+    """
+    s = raw.lower().strip()
+    s = re.sub(r"^(section|sect?\.?)\s*", "", s)
+    s = re.sub(r"\(.*\)", "", s)  # drop sub-section
+    return s.strip()
+
+
+def _extract_section_refs(text: str) -> list[str]:
+    """Pull all plausible FLA section references from the user query."""
+    patterns = [
+        r"(?:section|sect?\.?)\s*(\d+[A-Za-z]*)",
+        r"\bs\s*(\d+[A-Za-z]*)\b",
+        r"\bss\s*(\d+[A-Za-z]*)\b",
+    ]
+    refs: list[str] = []
+    for p in patterns:
+        refs.extend(re.findall(p, text, re.IGNORECASE))
+    return [_normalize_section_ref(r) for r in refs]
+
+
+def _keyword_search_statutes(collection, section_ids: list[str], top_k: int = 5) -> list[dict]:
+    """Exact metadata match on ``section_id`` in the statutes ChromaDB collection."""
+    results: list[dict] = []
+    for sid in section_ids:
+        hits = collection.get(
+            where={"section_id": {"$eq": sid}},
+            include=["documents", "metadatas"],
+        )
+        for doc, meta in zip(hits.get("documents") or [], hits.get("metadatas") or []):
+            results.append({"text": doc, **(meta or {})})
+        if len(results) >= top_k:
+            break
+    return results[:top_k]
+
+
+def _hybrid_retrieve_statutes(
+    index,
+    query: str,
+    *,
+    use_rerank: bool = True,
+    limit: int = 3,
+) -> list:
+    """Statute retrieval: exact section-id keyword lookup + vector semantic,
+    merged and optionally reranked.
+
+    This is the only collection where keyword matching is used because the
+    statute corpus is small and section-id exact matches are high-value.
+    """
+    import re as _re  # already imported at module level; local alias for clarity
+
+    # --- A. Keyword hits (exact section_id from ChromaDB metadata) ---
+    keyword_docs = []
+    vector_store = index.vector_store
+    chroma_collection = getattr(vector_store, "_collection", None)
+
+    if chroma_collection is not None:
+        section_refs = _extract_section_refs(query)
+        if section_refs:
+            raw_hits = _keyword_search_statutes(chroma_collection, section_refs, top_k=limit)
+            # Wrap raw dicts into lightweight objects that look like retriever nodes
+            # so they can be merged with vector nodes.
+            from llama_index.core.schema import TextNode, NodeWithScore
+            for hit in raw_hits:
+                node = TextNode(
+                    text=hit.pop("text", ""),
+                    metadata=hit,
+                )
+                keyword_docs.append(NodeWithScore(node=node, score=1.0))  # max score for exact match
+
+    # --- B. Vector (semantic) hits ---
+    retriever = index.as_retriever(similarity_top_k=limit)
+    vector_nodes = retriever.retrieve(query)
+
+    # --- C. Merge & deduplicate by section_id ---
+    merged = _merge_nodes(keyword_docs, vector_nodes)
+
+    # --- D. Rerank or weighted sort ---
+    if use_rerank and LLMRerank is not None:
+        reranker = LLMRerank(top_n=Config.RERANK_TOP_N)
+        merged = reranker.postprocess_nodes(merged, query_str=query)
+    else:
+        kw_norm = _normalize_scores(keyword_docs)
         vec_norm = _normalize_scores(vector_nodes)
-        bm25_norm = _normalize_scores(bm25_nodes)
-        for node in merged_nodes:
+        for node in merged:
             nid = _node_id(node)
             node.score = (
                 Config.HYBRID_VECTOR_WEIGHT * vec_norm.get(nid, 0.0)
-                + Config.HYBRID_BM25_WEIGHT * bm25_norm.get(nid, 0.0)
+                + Config.HYBRID_BM25_WEIGHT * kw_norm.get(nid, 0.0)
             )
-        merged_nodes.sort(key=lambda n: n.score or 0.0, reverse=True)
+        merged.sort(key=lambda n: n.score or 0.0, reverse=True)
 
-    return merged_nodes[:limit] if limit else merged_nodes
+    return merged[:limit]
 
 
 async def get_precedent_data(index, case_name: str, topic: str):
@@ -524,11 +584,11 @@ async def answer_case_question_withuploadFile(
         statute_query_parts.append(user_impact_text)
     statute_query = " ".join(statute_query_parts)
 
-    statute_nodes = _hybrid_retrieve(
-        statutes_index, 
-        statute_query, 
-        use_rerank=True, 
-        limit=3
+    statute_nodes = _hybrid_retrieve_statutes(
+        statutes_index,
+        statute_query,
+        use_rerank=True,
+        limit=3,
     )
     if Config.ENV == "dev":
         format_and_log(

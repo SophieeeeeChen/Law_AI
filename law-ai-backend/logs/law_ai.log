@@ -191,3 +191,48 @@
 2026-04-01 14:54:30,622 [INFO] Initializing statutes vector index...
 2026-04-01 14:54:30,766 [INFO] Statutes vector count: 410
 2026-04-01 14:54:39,100 [INFO] Using OpenAI (gpt-5.2) for final synthesis.
+2026-04-02 12:05:38,445 [WARNING] Failed to parse JSON. First 500 chars: {
+  "case_name": "Wallace & Wallace [2018] FamCA 151",
+  "parties": [
+    "Ms. Wallace (Mother)",
+    "Mr. Wallace (Father)"
+  ],
+  "facts": [
+    "The parties married in 2006 and separated on 24 January 2015.",
+    "There are two children of the marriage: C (born 2008, aged 9) and D (born 2011, aged 6).",
+    "Following separation, the mother was unable to see the children for a significant period due to an interim intervention order (IVO) initiated by the father.",
+    "The mother pleaded guil
+2026-04-02 15:07:55,394 [WARNING] Failed to parse JSON. First 500 chars: {
+  "case_name": "Cavan & Cavan [2018] FamCA 403",
+  "parties": [
+    "Ms Cavan (Mother)",
+    "Mr Cavan (Father)",
+    "Independent Children's Lawyer (ICL)"
+  ],
+  "facts": [
+    "The parties commenced cohabitation in 1997 and married in 1998.",
+    "The parties separated on a final basis in March 2015.",
+    "There are three children of the marriage: X (born 2004), Y (born 2006), and Z (born 2011).",
+    "The Mother commenced proceedings on 6 June 2017, initially seeking financial orders only.
+2026-04-02 19:15:53,483 [WARNING] Failed to parse JSON. First 500 chars: {
+  "case_name": "Millar & Oakley (No. 5) [2018] FamCA 724",
+  "parties": [
+    "Ms Millar (Wife)",
+    "Mr Oakley (Husband)",
+    "Independent Children's Lawyer (ICL)"
+  ],
+  "facts": [
+    "The parties have been involved in extensive litigation since 2016, including an international dispute involving the children and the husband's extended family in Country B.",
+    "The children were twice abducted by the husband and taken to Country B, putting them beyond the jurisdiction of the Australian c
+2026-04-02 22:59:35,088 [WARNING] Failed to parse JSON. First 500 chars: {
+  "case_name": "Vermeer & Vermeer (No 3) [2018] FamCA 975",
+  "parties": [
+    "Ms Vermeer (Mother)",
+    "Mr Vermeer (Father)",
+    "Independent Children’s Lawyer (ICL)"
+  ],
+  "facts": [
+    "The parties commenced cohabitation in 2000 and married in 2003.",
+    "There are three children of the marriage: B (born 2004), C (born 2006), and D (born 2007).",
+    "The mother has an adult daughter, Ms H (aged 24), from a previous relationship.",
+    "Final separation occurred in August 2011/2013; t

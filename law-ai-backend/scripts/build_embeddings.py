@@ -716,7 +716,6 @@ if __name__ == "__main__":
     setup_logging()
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("google_genai").setLevel(logging.WARNING)
-
     parser = argparse.ArgumentParser(description="SophieAI batch processing CLI")
     parser.add_argument(
         "--action",
