@@ -47,14 +47,15 @@ class Config:
     STATUTE_CHUNK_SIZE = int(os.environ.get("STATUTE_CHUNK_SIZE", "800"))
     STATUTE_CHUNK_OVERLAP = int(os.environ.get("STATUTE_CHUNK_OVERLAP", "120"))
     
+    # --- Data & Storage Paths ---
+    # Azure Files mounts: /mnt/chromadb and /mnt/data
     if ENV == "dev":
         VECTOR_DB_DIR = "./chroma_db"
         if DATABASE_URL is None:
             DATABASE_URL = "sqlite:///./app.db"
     else:  # prd
-        VECTOR_DB_DIR = "/mnt/data/chroma_db"
-        if DATABASE_URL is None:
-            raise RuntimeError("DATABASE_URL must be set when ENV=prd")
+        VECTOR_DB_DIR = os.environ.get("VECTOR_DB_DIR", "/mnt/chromadb")
+        DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:////mnt/data/sophieai.db")
         if not CORS_ORIGINS_LIST:
             raise RuntimeError("CORS_ORIGINS must be set when ENV=prd")
 

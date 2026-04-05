@@ -1,3 +1,11 @@
+# Batch Processing Dockerfile
+# Used for one-off data processing jobs (NOT the web server):
+#   - Generate case summaries with Gemini
+#   - Build summary/embedding indices from JSONL files
+# Usage:
+#   docker run <image> --action summaries
+#   docker run <image> --action build_summary_index --jsonl /app/out_summaries/file.jsonl
+
 FROM python:3.12-slim
 
 WORKDIR /app
