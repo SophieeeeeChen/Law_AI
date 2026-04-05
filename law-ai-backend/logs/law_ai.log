@@ -236,3 +236,72 @@
     "There are three children of the marriage: B (born 2004), C (born 2006), and D (born 2007).",
     "The mother has an adult daughter, Ms H (aged 24), from a previous relationship.",
     "Final separation occurred in August 2011/2013; t
+2026-04-04 21:54:27,114 [INFO] Starting up Law AI Backend...
+2026-04-04 21:54:27,114 [INFO] Initializing models and vector indices...
+2026-04-04 21:54:27,114 [INFO] Initializing LLM and embeddings...
+2026-04-04 21:54:28,009 [INFO] LLM and embeddings ready.
+2026-04-04 21:54:28,009 [INFO] Initializing cases vector index...
+2026-04-04 21:54:31,558 [INFO] Cases vector count: 74440
+2026-04-04 22:03:01,989 [INFO] Starting up Law AI Backend...
+2026-04-04 22:03:01,989 [INFO] Initializing models and vector indices...
+2026-04-04 22:03:01,989 [INFO] Initializing LLM and embeddings...
+2026-04-04 22:03:02,764 [INFO] LLM and embeddings ready.
+2026-04-04 22:03:02,764 [INFO] Initializing cases vector index...
+2026-04-04 22:03:04,406 [INFO] Cases vector count: 74440
+2026-04-04 22:03:04,422 [INFO] Startup complete!
+2026-04-04 22:04:10,346 [INFO] Embedded uploaded case '13' (6 chunks) in memory.
+2026-04-04 22:05:42,582 [INFO] Detected topic for question: property_division
+2026-04-04 22:05:42,582 [INFO] Initializing case summaries vector index...
+2026-04-04 22:05:43,800 [INFO] Case summaries vector count: 22992
+2026-04-04 22:05:58,839 [INFO] Initializing statutes vector index...
+2026-04-04 22:05:59,056 [INFO] Statutes vector count: 410
+2026-04-04 22:06:13,594 [INFO] Using OpenAI (gpt-5.2) for final synthesis.
+2026-04-04 22:20:59,938 [INFO] Embedded uploaded case '1' (5 chunks) in memory.
+2026-04-04 22:21:29,765 [INFO] Detected topic for question: property_division
+2026-04-04 22:21:29,765 [INFO] Clarification needed for topic 'property_division'. Asking questions.
+2026-04-04 22:21:35,741 [INFO] Embedded uploaded case '1' (1 chunks) in memory.
+2026-04-04 22:21:35,741 [INFO] Using summary section for topic 'property_division'
+2026-04-04 22:22:04,493 [INFO] Using OpenAI (gpt-5.2) for final synthesis.
+2026-04-04 22:24:52,900 [INFO] Embedded uploaded case '2' (6 chunks) in memory.
+2026-04-04 22:25:15,351 [INFO] Detected topic for question: property_division
+2026-04-04 22:25:15,351 [INFO] Clarification needed for topic 'property_division'. Asking questions.
+2026-04-04 22:25:27,810 [INFO] Embedded uploaded case '2' (1 chunks) in memory.
+2026-04-04 22:25:27,810 [INFO] Using summary section for topic 'property_division'
+2026-04-04 22:25:54,792 [INFO] Using OpenAI (gpt-5.2) for final synthesis.
+2026-04-04 22:32:05,328 [INFO] Embedded uploaded case '3' (6 chunks) in memory.
+2026-04-04 22:33:23,026 [INFO] Detected topic for question: property_division
+2026-04-04 22:33:23,026 [INFO] Clarification needed for topic 'property_division'. Asking questions.
+2026-04-04 22:33:32,482 [INFO] Embedded uploaded case '3' (1 chunks) in memory.
+2026-04-04 22:33:32,482 [INFO] Using summary section for topic 'property_division'
+2026-04-04 22:34:01,667 [INFO] Using OpenAI (gpt-5.2) for final synthesis.
+2026-04-04 22:39:53,108 [INFO] Starting up Law AI Backend...
+2026-04-04 22:39:53,108 [INFO] Initializing models and vector indices...
+2026-04-04 22:39:53,109 [INFO] Initializing LLM and embeddings...
+2026-04-04 22:39:53,878 [INFO] LLM and embeddings ready.
+2026-04-04 22:39:53,878 [INFO] Initializing cases vector index...
+2026-04-04 22:39:55,703 [INFO] Cases vector count: 74440
+2026-04-04 22:39:55,703 [INFO] Startup complete!
+2026-04-04 22:40:51,256 [INFO] Embedded uploaded case '4' (6 chunks) in memory.
+2026-04-04 22:44:28,345 [INFO] Detected topic for question: property_division
+2026-04-04 22:44:28,359 [INFO] Clarification needed for topic 'property_division'. Asking questions.
+2026-04-04 22:44:38,176 [INFO] Embedded uploaded case '4' (1 chunks) in memory.
+2026-04-04 22:44:38,176 [INFO] Using summary section for topic 'property_division'
+2026-04-04 22:44:38,176 [INFO] Initializing case summaries vector index...
+2026-04-04 22:44:39,422 [INFO] Case summaries vector count: 22992
+2026-04-04 22:44:54,632 [INFO] Initializing statutes vector index...
+2026-04-04 22:44:54,816 [INFO] Statutes vector count: 410
+2026-04-04 22:45:07,050 [INFO] Using OpenAI (gpt-5.2) for final synthesis.
+2026-04-04 23:03:58,504 [INFO] Detected topic for question: property_division
+2026-04-04 23:04:29,500 [INFO] Using OpenAI (gpt-5.2) for final synthesis.
+2026-04-04 23:41:27,752 [INFO] Embedded uploaded case '5' (5 chunks) in memory.
+2026-04-04 23:42:09,647 [INFO] Detected topic for question: property_division
+2026-04-04 23:42:09,647 [INFO] Clarification needed for topic 'property_division'. Asking questions.
+2026-04-04 23:42:17,058 [INFO] Embedded uploaded case '5' (1 chunks) in memory.
+2026-04-04 23:42:17,058 [INFO] Using summary section for topic 'property_division'
+2026-04-04 23:42:47,329 [INFO] Using OpenAI (gpt-5.2) for final synthesis.
+2026-04-04 23:48:32,869 [INFO] Detected topic for question: property_division
+2026-04-04 23:48:55,615 [INFO] Using OpenAI (gpt-5.2) for final synthesis.
+2026-04-04 23:55:56,925 [INFO] Detected topic for question: property_division
+2026-04-04 23:56:26,527 [INFO] Using OpenAI (gpt-5.2) for final synthesis.
+2026-04-04 23:58:06,945 [INFO] Detected topic for question: property_division
+2026-04-04 23:58:32,620 [INFO] Using OpenAI (gpt-5.2) for final synthesis.

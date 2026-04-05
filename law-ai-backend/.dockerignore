@@ -1,0 +1,16 @@
+venv/
+__pycache__/
+*.pyc
+.env
+chroma_db/
+data/
+.git/
+.gitignore
+*.md
+Dockerfile*
+docker-compose.yml
+ui.py
+retriever.py
+ingest.py
+bm25_index.pkl
+.env.example

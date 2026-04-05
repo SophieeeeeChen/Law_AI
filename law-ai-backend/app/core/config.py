@@ -47,17 +47,6 @@ class Config:
     STATUTE_CHUNK_SIZE = int(os.environ.get("STATUTE_CHUNK_SIZE", "800"))
     STATUTE_CHUNK_OVERLAP = int(os.environ.get("STATUTE_CHUNK_OVERLAP", "120"))
     
-    # --- Data & Storage ---
-    # Database path - Azure Files mount or local
-    DATA_DIR = Path(os.environ.get("DATA_DIR", Path(__file__).parent.parent.parent / "data"))
-    DATABASE_PATH = DATA_DIR / "sophieai.db"
-    DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
-    
-    @classmethod
-    def ensure_data_dir(cls):
-        """Create data directory if it doesn't exist."""
-        cls.DATA_DIR.mkdir(parents=True, exist_ok=True)
-    
     if ENV == "dev":
         VECTOR_DB_DIR = "./chroma_db"
         if DATABASE_URL is None:

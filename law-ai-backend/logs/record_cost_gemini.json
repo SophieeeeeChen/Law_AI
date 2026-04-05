@@ -1174,3 +1174,8 @@
 {"case_name": "FamCA_2018_997", "model_name": "models/gemini-3-flash-preview", "cost": 0.016805, "tokens_in": 7366, "tokens_out": 1932, "tokens_thought": 2442}
 {"case_name": "FamCA_2018_998", "model_name": "models/gemini-3-flash-preview", "cost": 0.014426, "tokens_in": 7156, "tokens_out": 2323, "tokens_thought": 1293}
 {"case_name": "FamCA_2018_999", "model_name": "models/gemini-3-flash-preview", "cost": 0.017312, "tokens_in": 9819, "tokens_out": 2909, "tokens_thought": 1225}
+{"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.01215, "tokens_in": 4278, "tokens_out": 2310, "tokens_thought": 1027}
+{"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.014013, "tokens_in": 4278, "tokens_out": 2451, "tokens_thought": 1507}
+{"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.013317, "tokens_in": 4469, "tokens_out": 2496, "tokens_thought": 1198}
+{"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.016887, "tokens_in": 4278, "tokens_out": 2876, "tokens_thought": 2040}
+{"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.021165, "tokens_in": 4572, "tokens_out": 2579, "tokens_thought": 3714}

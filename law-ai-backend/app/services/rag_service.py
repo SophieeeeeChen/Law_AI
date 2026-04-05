@@ -793,7 +793,9 @@ async def answer_case_question_withuploadFile(
         ## Likely Assessment & Range of Outcomes
         - {topic_instruction}
         - Predict the likely range of outcomes (percentages, specific orders, or arrangements) based on the most similar 'FINAL ORDERS' in the precedents.
-        - Justify the range by highlighting similarities or differences between the client's facts and the decided cases.
+        - **CRITICAL: Any predicted percentage range MUST be narrow — no more than 10 percentage points wide** (e.g., "55% to 62%", NOT "50% to 70%"). A wider range indicates insufficient analysis. If you cannot narrow it to within 10 points, identify exactly which missing facts prevent a tighter prediction and state your best estimate with caveats.
+        - Present ranges for each party that are consistent (e.g., Wife: 58%–65%, Husband: 35%–42%).
+        - Justify the range by highlighting specific similarities or differences between the client's facts and the decided cases that push the prediction toward one end of the range.
 
         ## Critical Risks & Missing Information
         - Compare the client's 'UNCERTAINTIES' with those found in the precedents.
