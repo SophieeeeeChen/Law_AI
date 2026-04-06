@@ -55,7 +55,7 @@ class Config:
             DATABASE_URL = "sqlite:///./app.db"
     else:  # prd
         VECTOR_DB_DIR = os.environ.get("VECTOR_DB_DIR", "/app/local_chromadb")
-        DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:////mnt/data/sophieai.db")
+        DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:////app/local_data/sophieai.db")
         if not CORS_ORIGINS_LIST:
             raise RuntimeError("CORS_ORIGINS must be set when ENV=prd")
 
