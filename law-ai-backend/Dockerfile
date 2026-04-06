@@ -21,9 +21,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create mount point directories
-RUN mkdir -p /mnt/chromadb /mnt/data
+RUN mkdir -p /mnt/chromadb /mnt/data /app/local_chromadb
 
 EXPOSE 8000
 
-# Use production-grade server settings
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--timeout-keep-alive", "120", "--loop", "asyncio"]
+# Startup script: copy ChromaDB from Azure Files to local disk, then start uvicorn
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]
