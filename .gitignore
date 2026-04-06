@@ -19,7 +19,6 @@ Law_AI.png
 build_embeddings_test.py
 dev_logger.py
 .env.development
-.env.production
 
 node_modules
 dist
