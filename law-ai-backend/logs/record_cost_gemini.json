@@ -1179,3 +1179,7 @@
 {"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.013317, "tokens_in": 4469, "tokens_out": 2496, "tokens_thought": 1198}
 {"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.016887, "tokens_in": 4278, "tokens_out": 2876, "tokens_thought": 2040}
 {"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.021165, "tokens_in": 4572, "tokens_out": 2579, "tokens_thought": 3714}
+{"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.018599, "tokens_in": 4341, "tokens_out": 2672, "tokens_thought": 2804}
+{"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.020389, "tokens_in": 3961, "tokens_out": 2813, "tokens_thought": 3323}
+{"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.01431, "tokens_in": 4572, "tokens_out": 2440, "tokens_thought": 1568}
+{"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.014664, "tokens_in": 4572, "tokens_out": 2707, "tokens_thought": 1419}

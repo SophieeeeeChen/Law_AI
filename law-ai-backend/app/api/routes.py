@@ -44,9 +44,9 @@ MAX_UPLOAD_MB = 5
 MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024
 
 # In-memory caches (case_summary_sections, pending_clarifications, session_history keyed by user_id -> case_id)
-case_summary_sections: Dict[int, Dict[int, Dict[str, str]]] = {}
-pending_clarifications: Dict[int, Dict[int, Dict[str, object]]] = {}
-session_history: Dict[int, Dict[int, list[dict]]] = {}
+case_summary_sections: Dict[str, Dict[int, Dict[str, str]]] = {}
+pending_clarifications: Dict[str, Dict[int, Dict[str, object]]] = {}
+session_history: Dict[str, Dict[int, list[dict]]] = {}
 
 
 # Request/Response Models
@@ -92,12 +92,12 @@ def _clear_case(case_id: int) -> None:
 def _build_case_summary_for_query(
     case_id: int,
     db: Session,
+    resolved_user_id: str,  
 ) -> Optional[dict]:
     """
     Fetch the full case summary from the database, parse it into a dictionary,
     and refresh the cache.
     """
-    # Fetch the full summary from the database
     case_row = db.query(Case).filter(Case.id == case_id).first()
     if not case_row or not case_row.case_summary:
         logger.warning(f"No case summary found in DB for case_id: {case_id}")
@@ -105,27 +105,22 @@ def _build_case_summary_for_query(
 
     full_summary_str = case_row.case_summary
 
-    # Parse the full summary
     try:
         summary_obj = json.loads(full_summary_str)
         if not isinstance(summary_obj, dict):
             logger.error(f"Parsed summary for case {case_id} is not a dict.")
-            return None # Or handle as just text
+            return None
     except (json.JSONDecodeError, TypeError):
         logger.error(f"Failed to parse summary JSON for case {case_id}.")
-        return None # Or return the raw string in a dict
+        return None
 
-    # Refresh the cache with all sections from the fetched summary
     summary_sections = summary_json_to_sections(summary_obj, include_outcome_reasons=False)
-    """
-    summary_sections = [dict(section="facts", text="..."), dict(section="issues", text="..."), ...]
-    """
-    _refresh_case_summary_cache(case_id, summary_sections, case_row.user_id)
+    _refresh_case_summary_cache(case_id, summary_sections, resolved_user_id) 
     
     return summary_sections
 
 
-def _refresh_case_summary_cache(case_id: int, summary_sections: dict, user_id: int) -> None:
+def _refresh_case_summary_cache(case_id: int, summary_sections: dict, user_id: str) -> None:
     """Update the in-memory cache with parsed summary sections.
       case_summary_sections = {
         123: {
@@ -375,10 +370,29 @@ async def ask_ai(
     # We can now reliably get this from the cache, which was just updated.
     case_summary_incache = case_summary_sections.get(resolved_user_id, {}).get(case_id, {})
 
-    # TODO:if there is no case summary in the memory cache, we should fetch the full summary from the DB and rebuild the cache before proceeding. This is to handle the scenario where the server was restarted or the cache was cleared for some reason.
     if not case_summary_incache:
-        raise HTTPException(status_code=500, detail="Case summary not found in cache. Please re-upload the case or contact support.")
-        
+        logger.info(f"Cache miss for case {case_id}, rebuilding from DB...")
+        rebuilt_sections = _build_case_summary_for_query(case_id, db, resolved_user_id)
+        if not rebuilt_sections:
+            raise HTTPException(
+                status_code=500,
+                detail="Case summary not found in cache or database. Please re-upload the case.",
+            )
+
+        # Also restore embeddings so RAG queries work
+        _ensure_uploaded_case_embeddings(
+            case_id,
+            case_row.filename,
+            summary_sections=rebuilt_sections,
+        )
+
+        if Config.ENV == "dev":
+            format_and_log("/ask", "Cache Rebuild", "case_summary_sections", {
+                "session_id": resolved_user_id,
+                "case_id": case_id,
+                "sections": list(rebuilt_sections.keys()) if isinstance(rebuilt_sections, dict) else "non-dict",
+            })
+
     case_section_text = case_summary_sections.get(resolved_user_id, {}).get(case_id, {}).get(detected_topic, "")
     # 6. Check for missing factors using the full summary object
     missing_fields, clarifying_questions = get_clarification_for_topic(
@@ -410,7 +424,6 @@ async def ask_ai(
         topic=detected_topic,
         case_id=case_id
     )
-
     # Split the response to get the main answer and the cache summary
     parts = response_text.split("---CACHE_SUMMARY---")
     main_answer = parts[0].strip()
@@ -428,7 +441,7 @@ async def ask_ai(
             {
                 "session_id": resolved_user_id,
                 "case_id": case_id,
-                "items": len(session_history[resolved_user_id][case_id]),
+                "response_text": response_text,
                 "last_user": q.question,
                 "last_assistant": cache_summary,
             },
@@ -612,7 +625,7 @@ async def clarify_answer(
     logger.info(f"Using summary section for topic '{topic}'")
     if not case_section_text:
         logger.warning(f"No summary section found for topic '{topic}' in case {case_id}. Using full summary text as fallback.")
-        summary_sections = _build_case_summary_for_query(case_id, db)
+        summary_sections = _build_case_summary_for_query(case_id, db, resolved_user_id)
         case_section_text = "\n".join([section.get("text", "") for section in summary_sections if section.get("section") == topic])
 
     pending_question = pending.get("question", "") if isinstance(pending, dict) else ""
@@ -628,7 +641,25 @@ async def clarify_answer(
     # Strip CACHE_SUMMARY from the answer
     parts = answer.split("---CACHE_SUMMARY---")
     main_answer = parts[0].strip()
+    cache_summary = parts[1].strip() if len(parts) > 1 else "Summary not available."
 
+    # Store the concise summary in history, not the full answer (keyed by case_id)
+    session_history.setdefault(resolved_user_id, {}).setdefault(case_id, [])
+    session_history[resolved_user_id][case_id].append({"role": "user", "content": pending_question})
+    session_history[resolved_user_id][case_id].append({"role": "assistant", "content": cache_summary})
+    if Config.ENV == "dev":
+        format_and_log(
+            "/ask",
+            "Cache Update",
+            "session_history",
+            {
+                "session_id": resolved_user_id,
+                "case_id": case_id,
+                "items": len(session_history[resolved_user_id][case_id]),
+                "question": pending_question,
+                "last_assistant": cache_summary,
+            },
+        )
     qa = QuestionAnswer(
         case_id=case_id,
         user_id=case_row.user_id,
