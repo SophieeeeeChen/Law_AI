@@ -26,6 +26,7 @@ import os
 import sys
 import time
 import tempfile
+import re
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -196,6 +197,46 @@ def convert_rtf_to_md(rtf_content: bytes) -> str:
         del rtf_content  # Free RTF bytes from memory immediately
 
 
+def clean_markdown(md_text: str) -> str:
+    """
+    Post-process Pandoc markdown output:
+    - Strip grid table borders (+---+, |...|) while keeping cell text
+    - Remove HTML span tags (e.g. {#JudgmentDate}, {#Catchwords})
+    - Remove excessive blank lines
+    - Strip trailing whitespace
+    """
+    lines = md_text.split("\n")
+    cleaned = []
+    for line in lines:
+        # Skip grid table border lines: +----+----+
+        if re.match(r"^\+[-=+]+\+$", line.strip()):
+            continue
+        # Strip pipe-table row: extract text between pipes
+        if line.strip().startswith("|") and line.strip().endswith("|"):
+            # Extract cell contents, strip each, join with " — " if multiple non-empty cells
+            cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+            cells = [c for c in cells if c]  # remove empty cells
+            if cells:
+                cleaned.append("  ".join(cells))
+            continue
+        cleaned.append(line)
+
+    text = "\n".join(cleaned)
+
+    # Remove Pandoc span ID markers like {#JudgmentDate}, {#Catchwords}, {#Place}, etc.
+    text = re.sub(r"\{#\w+\}", "", text)
+    # Remove empty markdown links/spans: []{.underline} etc.
+    text = re.sub(r"\[\]\{[^}]*\}", "", text)
+    # Remove span class markers like {.underline}
+    text = re.sub(r"\{\.[\w-]+\}", "", text)
+    # Collapse 3+ blank lines into 2
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    # Strip trailing whitespace on each line
+    text = "\n".join(line.rstrip() for line in text.split("\n"))
+
+    return text.strip()
+
+
 # ─────────────────────────────────────────────
 # Core pipeline
 # ─────────────────────────────────────────────
@@ -253,6 +294,7 @@ def download_court_year(
                 # Convert RTF → Markdown, then free memory
                 try:
                     md_text = convert_rtf_to_md(response.content)
+                    md_text = clean_markdown(md_text) if md_text else md_text
                     if md_text and len(md_text.strip()) > 100:
                         md_storage.write_text(md_path, md_text)
                         stats["converted"] += 1
@@ -339,12 +381,70 @@ def test_single_case(court: str = "FamCAFC", year: int = 2021, number: int = 1) 
     print("\nConverting RTF → Markdown...")
     try:
         md_text = convert_rtf_to_md(response.content)
+        md_text = clean_markdown(md_text)
         print(f"Markdown length: {len(md_text)} chars")
         print(f"\nPreview (first 500 chars):\n{'='*60}")
         print(md_text[:500])
         print(f"{'='*60}")
     except Exception as e:
         print(f"[FAILED] Conversion error: {type(e).__name__}: {e}")
+
+
+def test_single_case_html(court: str = "FamCAFC", year: int = 2021, number: int = 1, storage_mode: str = "local") -> None:
+    """Debug: download one case via HTML URL and extract text."""
+    case_id = build_case_id(court, year, number)
+    url = f"https://www.austlii.edu.au/cgi-bin/viewdoc/au/cases/cth/{court}/{year}/{number}.html"
+    print(f"Fetching HTML: {url}")
+
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=60, verify=False)
+    except Exception as e:
+        print(f"[FAILED] {type(e).__name__}: {e}")
+        return
+
+    print(f"Status: {response.status_code}")
+    print(f"Content-Type: {response.headers.get('Content-Type')}")
+    print(f"Content length: {len(response.content)} bytes")
+
+    if response.status_code != 200:
+        print(f"Response: {response.text[:500]}")
+        return
+
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError:
+        print("[FAILED] beautifulsoup4 not installed. Run: pip install beautifulsoup4")
+        return
+
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    # AustLII wraps case content in <article> or the main body
+    # Try common selectors
+    content = soup.find("article") or soup.find(class_="document") or soup.find("body")
+
+    if not content:
+        print("[FAILED] Could not find case content in HTML")
+        return
+
+    # Extract text, preserving some structure
+    text = content.get_text(separator="\n", strip=True)
+    print(f"\nExtracted text length: {len(text)} chars")
+    print(f"\nPreview (first 500 chars):\n{'='*60}")
+    print(text[:500])
+    print(f"{'='*60}")
+    print(f"\n... (last 200 chars):\n{'='*60}")
+    print(text[-200:])
+    print(f"{'='*60}")
+
+    # Save to storage
+    if len(text.strip()) > 100:
+        md_storage = create_storage(storage_mode)
+        year_folder = f"{court}_{year}"
+        md_path = f"{year_folder}/{case_id}.md"
+        md_storage.write_text(md_path, text)
+        print(f"\n[✅] Saved to {storage_mode}: {md_path}")
+    else:
+        print(f"\n[⚠️] Text too short ({len(text)} chars), not saving.")
 
 
 # ─────────────────────────────────────────────
@@ -364,9 +464,17 @@ if __name__ == "__main__":
                         help=f"Stop after N consecutive 404s (default: {MAX_CONSECUTIVE_404})")
     parser.add_argument("--test", action="store_true",
                         help="Test mode: download and convert one case only")
+    parser.add_argument("--test-html", action="store_true",
+                        help="Test mode: download one case via HTML URL")
     args = parser.parse_args()
 
     # Test mode
+    if args.test_html:
+        court = args.court if args.court != "all" else "FamCAFC"
+        year = parse_year_range(args.years)[0]
+        test_single_case_html(court, year, 1, storage_mode=args.storage)
+        exit(0)
+
     if args.test:
         court = args.court if args.court != "all" else "FamCAFC"
         year = parse_year_range(args.years)[0]
