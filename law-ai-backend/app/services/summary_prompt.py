@@ -32,6 +32,7 @@ TOPICS TO COVER (derive from the case text):
 CRITICAL SEARCH INDICATORS (Ensure these factors are addressed in your summary if present):
 - Property: Look for assets/liabilities, contributions (financial, non-financial, homemaker, domestic labour, gardening, childcare), future needs (disparity, health, standard of living). Strictly distinguish between 'Agreed' values and 'Disputed' values. If a total net pool figure is mentioned (e.g., $1.2M), prioritize including it.
 - Parenting: Look for ages, school routines, primary carer history, availability (travel/shifts), safety (abuse/violence), child's wishes.
+- Parenting (TACTICAL & TRAVEL): Look for instances of strategic withholding of a child (fabricated illness, refusal to return after contact), unilateral travel bookings, passport disputes, contravention applications (Div 13A), risk-of-non-return allegations, Hague Convention references, Airport Watch List orders (s 67ZD), and any judicial commentary on a party's credibility being undermined by tactical behavior. Note: (1) HOW the court characterised the behavior (e.g., 'reasonable caution' vs 'deliberate frustration of the other parent's time' vs 'tactical withholding designed to create a status quo'), (2) WHAT consequences followed (e.g., costs, variation of orders, supervised handovers, makeup time, change of primary residence), and (3) any judicial GUIDANCE or WARNING about this type of conduct that a lawyer could cite in future cases.
 - Maintenance: Look for budget/expenses, capacity to work, qualifications, relationship duration.
 - Agreements: Look for legal advice, financial disclosure, pressure/duress, changed circumstances.
 
@@ -39,6 +40,7 @@ ADDITIONAL REQUIRED DETAILS (when applicable):
 - Property cases: what was included/excluded in the asset pool (clearly labeling 'Agreed' vs 'Disputed' figures and the total net pool if stated); each party's contributions; each party's future needs; what was just and equitable and the final percentage split.
 - Spousal maintenance: the claimant's need, the other party's capacity to pay, and the factors relied on.
 - Parenting: allegations of abuse/neglect/family violence and how they were determined; what family consultant/experts recommended; what arrangements were found to be in the child's best interests.
+- Parenting (tactical patterns): If a party engaged in grey-area conduct (e.g., withholding child citing illness without medical evidence, retaining child after contact to block a planned trip, unilateral travel decisions), capture: (a) what the party did, (b) their stated justification, (c) the court's finding on credibility, (d) the JUDGE'S CHARACTERISATION — how the judge described or labelled the behavior (e.g., 'deliberate frustration', 'tactical withholding to create a status quo', 'reasonable caution'), (e) the legal consequence (contravention finding, costs, order variation, makeup time, change of primary residence), (f) the statutory basis (e.g., Div 13A contravention, s 65Y passports, s 67ZD Airport Watch List, s 60CC(3)(c) willingness to facilitate relationship), and (g) any judicial GUIDANCE or WARNING about this type of conduct that could be cited as precedent.
 - Impact Analysis (per section): Identify specific behaviors or evidence (pivotal findings) and specific sections of the Family Law Act or Court Rules (statutory pivots) that fundamentally shifted the judge's decision on THAT topic.
 - Evidentiary Gaps (per section): Identify missing evidence, disputed valuations without expert reports, or conflicting testimony specific to THAT topic.
 - Outcome: what the court ordered to determine the controversy or legal dispute.
@@ -63,8 +65,8 @@ JSON SCHEMA (keys required):
     "contributions": ["string"],
     "future_needs": ["string"],
     "just_equitable": ["string"],
-    "living_arrangements": ["string"],
-    "existing_agreements": ["string"],
+    "living_arrangements": ["string"],   
+    "existing_agreements": ["string"],  
     "orders": ["The specific property orders made by the court (e.g., 'Wife to retain the former matrimonial home', 'Superannuation splitting order of $Y')."],
     "reasoning": ["The judge's reasoning for the property division (e.g., 'Equal contributions found but 5% adjustment under s 75(2) for wife's reduced earning capacity')."],
     "impact_analysis": {{{{
@@ -75,14 +77,15 @@ JSON SCHEMA (keys required):
   }}}},
   "children_parenting": {{{{
     "child_ages": ["string"],
-    "current_arrangements": ["string"],
-    "caregiver_history": ["string"],
-    "availability": ["string"],
-    "safety_concerns": ["string"],
-    "child_views": ["string"],
-    "allegations": ["string"],
-    "expert_evidence": ["string"],
-    "best_interests": ["string"],
+    "current_arrangements": ["string"],   
+    "caregiver_history": ["string"],    
+    "availability": ["string"],         
+    "safety_concerns": ["string"],      
+    "child_views": ["string"],          
+    "allegations": ["string"],          
+    "expert_evidence": ["string"],      
+    "best_interests": ["string"],       
+    "tactical_behavior_patterns": ["Instances where a party engaged in strategic, deceptive, or 'grey area' conduct regarding parenting arrangements (e.g., 'Mother withheld child from weekend handover citing illness with no medical evidence', 'Father retained child after holiday contact and refused to return', 'Mother unilaterally booked international travel during father's scheduled time', 'Father's refusal to consent to travel found to be unreasonable gatekeeping'). For EACH instance, capture: (a) the tactic used, (b) the stated justification, (c) the court's finding on credibility, (d) the JUDGE'S CHARACTERISATION — how the judge described or labelled the behavior (e.g., 'deliberate frustration of the father's time', 'reasonable caution given history of violence', 'tactical withholding designed to create a status quo', 'not a genuine safety concern but an attempt to control'), (e) the legal consequence (contravention finding, costs, order variation, makeup time, change of primary residence), and (f) any judicial guidance or warning about this type of conduct. Also capture travel/relocation disputes, passport retention, Hague Convention considerations, and Airport Watch List (s 67ZD) orders where relevant."],
     "orders": ["The specific parenting orders (e.g., 'Children to live with mother', 'Supervised time for 6 months')."],
     "reasoning": ["The judge's reasoning for the parenting orders (e.g., 'Court preferred family consultant's recommendation that stability with primary carer was in children's best interests')."],
     "impact_analysis": {{{{
@@ -93,13 +96,13 @@ JSON SCHEMA (keys required):
   }}}},
   "spousal_maintenance": {{{{
     "need": ["string"],
-    "capacity_to_pay": ["string"],
-    "statutory_factors": ["string"],
-    "income_expenses": ["string"],
-    "earning_capacity": ["string"],
-    "health_care": ["string"],
+    "capacity_to_pay": ["string"],   
+    "statutory_factors": ["string"],   
+    "income_expenses": ["string"],    
+    "earning_capacity": ["string"],   
+    "health_care": ["string"],        
     "relationship_length": ["string"],
-    "standard_of_living": ["string"],
+    "standard_of_living": ["string"], 
     "orders": ["The specific maintenance orders (e.g., 'Husband to pay $X/month for 3 years', 'Maintenance dismissed')."],
     "reasoning": ["The judge's reasoning for the maintenance decision (e.g., 'Wife demonstrated need due to limited earning capacity after 20-year marriage as homemaker')."],
     "impact_analysis": {{{{
@@ -111,9 +114,9 @@ JSON SCHEMA (keys required):
   "family_violence_safety": {{{{
     "incidents": ["string"],
     "protection_orders": ["string"],
-    "police_court": ["string"],
+    "police_court": ["string"],   
     "child_exposure": ["string"],
-    "safety_plan": ["string"],
+    "safety_plan": ["string"],   
     "orders": ["Any specific orders related to family violence or safety (e.g., 'Injunction under s 68B', 'Supervised handovers at contact centre')."],
     "reasoning": ["The judge's reasoning regarding family violence findings (e.g., 'Court accepted mother's evidence of coercive control corroborated by police records')."],
     "impact_analysis": {{{{
@@ -124,10 +127,10 @@ JSON SCHEMA (keys required):
   }}}},
   "prenup_postnup": {{{{
     "agreement_date": ["string"],
-    "legal_advice": ["string"],
-    "financial_disclosure": ["string"],
-    "pressure_duress": ["string"],
-    "changed_circumstances": ["string"],
+    "legal_advice": ["string"],   
+    "financial_disclosure": ["string"],  
+    "pressure_duress": ["string"],     
+    "changed_circumstances": ["string"],   
     "orders": ["Any specific orders regarding the agreement (e.g., 'BFA set aside under s 90K(1)(b)', 'Agreement upheld and enforced')."],
     "reasoning": ["The judge's reasoning regarding the agreement (e.g., 'Agreement set aside because wife did not receive independent legal advice and material non-disclosure of trust assets')."],
     "impact_analysis": {{{{
@@ -172,74 +175,6 @@ GUIDANCE:
 - overall_impact_analysis: cross-cutting turning points spanning multiple sections.
 - reasons_rationale: overall / cross-cutting reasoning spanning multiple sections.
 - general_credibility_risk: holistic credibility assessments, overarching risk factors, and procedural concerns that do not belong to a single section.
-- internal_legal_thought_process: Use this space to 'think out loud' about which party's evidence the judge preferred and why. This acts as a logical bridge for the impact_analysis, section-level reasoning, and reasons_rationale.
 INPUT:
 {case_text}
 """
-
-
-def empty_case_summary(raw_excerpt: Optional[str] = None, uncertainty: Optional[str] = None) -> Dict[str, Any]:
-    summary: Dict[str, Any] = {
-        "case_name": "",
-        "court": "",
-        "date": "",
-        "parties": [],
-        "issues": [],
-        "facts": [],
-        "property_division": {
-            "asset_pool": [],
-            "contributions": [],
-            "future_needs": [],
-            "just_equitable": [],
-            "living_arrangements": [],
-            "existing_agreements": [],
-        },
-        "spousal_maintenance": {
-            "need": [],
-            "capacity_to_pay": [],
-            "statutory_factors": [],
-            "income_expenses": [],
-            "earning_capacity": [],
-            "health_care": [],
-            "relationship_length": [],
-            "standard_of_living": [],
-        },
-        "parenting": {
-            "child_ages": [],
-            "current_arrangements": [],
-            "caregiver_history": [],
-            "availability": [],
-            "safety_concerns": [],
-            "child_views": [],
-            "allegations": [],
-            "expert_evidence": [],
-            "best_interests": [],
-            "orders": [],
-        },
-        "family_violence_safety": {
-            "incidents": [],
-            "protection_orders": [],
-            "police_court": [],
-            "child_exposure": [],
-            "safety_plan": [],
-        },
-        "prenup_postnup": {
-            "agreement_date": [],
-            "legal_advice": [],
-            "financial_disclosure": [],
-            "pressure_duress": [],
-            "changed_circumstances": [],
-        },
-        "outcome_orders": [],
-        "impact_analysis": {
-            "pivotal_findings": ["string"],
-            "statutory_pivots": ["string"]
-        },
-        "reasons_rationale": [],
-        "uncertainties": [],
-    }
-    if raw_excerpt:
-        summary["facts"] = [raw_excerpt]
-    if uncertainty:
-        summary["uncertainties"] = [uncertainty]
-    return summary

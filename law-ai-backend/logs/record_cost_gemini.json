@@ -1183,3 +1183,7 @@
 {"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.020389, "tokens_in": 3961, "tokens_out": 2813, "tokens_thought": 3323}
 {"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.01431, "tokens_in": 4572, "tokens_out": 2440, "tokens_thought": 1568}
 {"case_name": "uploaded_case", "model_name": "models/gemini-3-flash-preview", "cost": 0.014664, "tokens_in": 4572, "tokens_out": 2707, "tokens_thought": 1419}
+{"case_name": "FamCA_2024_buried_tactical_test", "model_name": "models/gemini-3-flash-preview", "cost": 0.017552, "tokens_in": 7965, "tokens_out": 3429, "tokens_thought": 1094}
+{"case_name": "FamCA_2024_tactical_test", "model_name": "models/gemini-3-flash-preview", "cost": 0.016699, "tokens_in": 8942, "tokens_out": 3054, "tokens_thought": 1022}
+{"case_name": "FamCA_2024_buried_tactical_test", "model_name": "models/gemini-3-flash-preview", "cost": 0.017806, "tokens_in": 7965, "tokens_out": 3312, "tokens_thought": 1296}
+{"case_name": "FamCA_2024_tactical_test", "model_name": "models/gemini-3-flash-preview", "cost": 0.016633, "tokens_in": 8942, "tokens_out": 3055, "tokens_thought": 999}

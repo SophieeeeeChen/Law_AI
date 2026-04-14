@@ -703,7 +703,7 @@ async def answer_case_question_withuploadFile(
     if topic == "property_division":
         topic_instruction = "Apply the 'Four-Step Process' (Pool, Contributions, s 75(2) Future Needs, and Just & Equitable)."
     elif topic == "children_parenting":
-        topic_instruction = "Apply the 'Best Interests of the Child' framework (Section 60CC), focusing on safety, developmental needs, and the benefit of a relationship with both parents."
+        topic_instruction = "Apply the 'Best Interests of the Child' framework (Section 60CC), focusing on safety, developmental needs, and the benefit of a relationship with both parents. Pay special attention to any tactical behavior patterns (e.g., strategic withholding, unilateral travel, contravention of orders) — cite the judge's characterisation of the conduct and the consequences imposed, referencing s 60CC(3)(c) willingness to facilitate, Div 13A contraventions, s 65Y passports, and s 67ZD Airport Watch List where relevant."
     elif topic == "spousal_maintenance":
         topic_instruction = "Apply the 'Threshold Test' (Section 72): One party's inability to support themselves vs. the other party's capacity to pay."
     else:

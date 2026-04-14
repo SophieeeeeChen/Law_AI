@@ -10,7 +10,7 @@ from typing import Optional
 
 from app.core.config import Config
 from app.core.logger import logger
-from app.services.summary_prompt import build_case_summary_prompt, empty_case_summary
+from app.services.summary_prompt import build_case_summary_prompt
 from typing import List, Dict, Any, Iterable
 
 import google.generativeai as genai
@@ -21,47 +21,51 @@ gemini_ai = genai.GenerativeModel('gemini-3-flash-preview')
 
 # Shared list caps for summaries (kept in one place so uploads + batch stay consistent).
 SUMMARY_LIST_LIMITS_PRIMARY = {
-    "facts": 12,
-    "outcome_orders": 10,
-    "reasons_rationale": 12,
-    "uncertainties": 4,
-    "asset_pool": 8,
-    "contributions": 10,
-    "future_needs": 8,
-    "just_equitable": 8,
-    "living_arrangements": 6,
-    "existing_agreements": 6,
-    "need": 8,
-    "capacity_to_pay": 8,
-    "statutory_factors": 8,
-    "income_expenses": 8,
-    "earning_capacity": 8,
-    "health_care": 6,
-    "relationship_length": 3,
-    "standard_of_living": 6,
-    "child_ages": 6,
-    "current_arrangements": 8,
-    "caregiver_history": 8,
-    "availability": 6,
-    "safety_concerns": 8,
-    "child_views": 8,
-    "allegations": 8,
-    "expert_evidence": 6,
-    "best_interests": 8,
+    "facts": 18,
+    "outcome_orders": 15,
+    "reasons_rationale": 15,
+    "uncertainties": 6,
+    "asset_pool": 15,
+    "contributions": 12,
+    "future_needs": 10,
+    "just_equitable": 10,
+    "living_arrangements": 8,
+    "existing_agreements": 8,
+    "need": 10,
+    "capacity_to_pay": 10,
+    "statutory_factors": 10,
+    "income_expenses": 10,
+    "earning_capacity": 10,
+    "health_care": 8,
+    "relationship_length": 5,
+    "standard_of_living": 8,
+    "child_ages": 10,
+    "current_arrangements": 10,
+    "caregiver_history": 10,
+    "availability": 8,
+    "safety_concerns": 10,
+    "child_views": 10,
+    "allegations": 10,
+    "expert_evidence": 10,
+    "best_interests": 10,
+    "tactical_behavior_patterns": 10,
     "orders": 10,
-    "incidents": 8,
-    "protection_orders": 6,
-    "police_court": 6,
-    "child_exposure": 6,
-    "safety_plan": 6,
-    "agreement_date": 2,
-    "legal_advice": 6,
-    "financial_disclosure": 6,
-    "pressure_duress": 6,
-    "changed_circumstances": 6,
-    "parties": 8,
-    "pivotal_findings": 8,
-    "statutory_pivots": 8,
+    "incidents": 10,
+    "protection_orders": 8,
+    "police_court": 8,
+    "child_exposure": 8,
+    "safety_plan": 8,
+    "agreement_date": 4,
+    "legal_advice": 8,
+    "financial_disclosure": 8,
+    "pressure_duress": 8,
+    "changed_circumstances": 8,
+    "parties": 10,
+    "pivotal_findings": 10,
+    "statutory_pivots": 10,
+    "reasoning": 12,
+    "evidentiary_gaps": 10,
+    "general_credibility_risk": 10,
 }
 
 SUMMARY_LIST_LIMITS_FALLBACK = {
@@ -156,15 +160,13 @@ def apply_list_limits(summary: dict, limits: dict) -> dict:
         if isinstance(obj, dict):
             for k, v in obj.items():
                 if isinstance(v, dict):
-                    # Recurse into nested dictionaries
                     walk(v, parent_key=k)
                 elif v is None and k in {"outcome_orders"}:
-                    # Preserve explicit nulls for specific fields
                     obj[k] = None
+                elif k == "description" and isinstance(v, str):
+                    pass  # FIX: preserve description as a string, don't convert to list
                 elif isinstance(v, (list, str)) or v is None:
-                    # Apply limits to lists and string values
                     items = normalize_list(v)
-                    # Use the key name directly for limits lookup
                     limit = limits.get(k, 5)
                     obj[k] = items[:limit] if items else []
 
@@ -227,6 +229,8 @@ def summary_json_to_sections(summary: dict, *, include_outcome_reasons: bool = T
     add_grouped_items(prop_lines, "Contributions", prop.get("contributions", []))
     add_grouped_items(prop_lines, "Future Needs", prop.get("future_needs", []))
     add_grouped_items(prop_lines, "Just & Equitable", prop.get("just_equitable", []))
+    add_grouped_items(prop_lines, "Living Arrangements", prop.get("living_arrangements", []))       # NEW
+    add_grouped_items(prop_lines, "Existing Agreements", prop.get("existing_agreements", []))       # NEW
     add_legal_metadata(prop_lines, prop)
     add_section("property_division", prop_lines)
 
@@ -234,18 +238,33 @@ def summary_json_to_sections(summary: dict, *, include_outcome_reasons: bool = T
     parenting = summary.get("children_parenting", {}) or {}
     parenting_lines = []
     add_grouped_items(parenting_lines, "Child Ages", parenting.get("child_ages", []))
+    add_grouped_items(parenting_lines, "Current Arrangements", parenting.get("current_arrangements", []))   # NEW
+    add_grouped_items(parenting_lines, "Caregiver History", parenting.get("caregiver_history", []))         # NEW
+    add_grouped_items(parenting_lines, "Availability", parenting.get("availability", []))                   # NEW
     add_grouped_items(parenting_lines, "Safety Concerns", parenting.get("safety_concerns", []))
+    add_grouped_items(parenting_lines, "Child Views", parenting.get("child_views", []))                     # NEW
+    add_grouped_items(parenting_lines, "Allegations", parenting.get("allegations", []))                     # NEW
     add_grouped_items(parenting_lines, "Expert Evidence", parenting.get("expert_evidence", []))
     add_grouped_items(parenting_lines, "Best Interests", parenting.get("best_interests", []))
     add_legal_metadata(parenting_lines, parenting)
     add_section("children_parenting", parenting_lines)
+
+    # --- 3b. TACTICAL BEHAVIOR PATTERNS (standalone for focused RAG retrieval) ---
+    tactical_lines = []
+    add_grouped_items(tactical_lines, "Tactical Behavior Patterns", parenting.get("tactical_behavior_patterns", []))
+    add_section("tactical_behavior_patterns", tactical_lines)
 
     # --- 4. SPOUSAL MAINTENANCE ---
     sm = summary.get("spousal_maintenance", {}) or {}
     sm_lines = []
     add_grouped_items(sm_lines, "Need", sm.get("need", []))
     add_grouped_items(sm_lines, "Capacity to Pay", sm.get("capacity_to_pay", []))
+    add_grouped_items(sm_lines, "Statutory Factors", sm.get("statutory_factors", []))                       # NEW
     add_grouped_items(sm_lines, "Income & Expenses", sm.get("income_expenses", []))
+    add_grouped_items(sm_lines, "Earning Capacity", sm.get("earning_capacity", []))                         # NEW
+    add_grouped_items(sm_lines, "Health & Care", sm.get("health_care", []))                                 # NEW
+    add_grouped_items(sm_lines, "Relationship Length", sm.get("relationship_length", []))                   # NEW
+    add_grouped_items(sm_lines, "Standard of Living", sm.get("standard_of_living", []))                     # NEW
     add_legal_metadata(sm_lines, sm)
     add_section("spousal_maintenance", sm_lines)
 
@@ -254,7 +273,9 @@ def summary_json_to_sections(summary: dict, *, include_outcome_reasons: bool = T
     fv_lines = []
     add_grouped_items(fv_lines, "Incidents", violence.get("incidents", []))
     add_grouped_items(fv_lines, "Protection Orders", violence.get("protection_orders", []))
+    add_grouped_items(fv_lines, "Police & Court", violence.get("police_court", []))                         # NEW
     add_grouped_items(fv_lines, "Child Exposure", violence.get("child_exposure", []))
+    add_grouped_items(fv_lines, "Safety Plan", violence.get("safety_plan", []))                             # NEW
     add_legal_metadata(fv_lines, violence)
     add_section("family_violence_safety", fv_lines)
 
@@ -262,15 +283,19 @@ def summary_json_to_sections(summary: dict, *, include_outcome_reasons: bool = T
     prenup = summary.get("prenup_postnup", {}) or {}
     pn_lines = []
     add_grouped_items(pn_lines, "Agreement Details", prenup.get("agreement_date", []))
+    add_grouped_items(pn_lines, "Legal Advice", prenup.get("legal_advice", []))                             # NEW
     add_grouped_items(pn_lines, "Disclosure & Advice", prenup.get("financial_disclosure", []))
+    add_grouped_items(pn_lines, "Pressure & Duress", prenup.get("pressure_duress", []))                     # NEW
+    add_grouped_items(pn_lines, "Changed Circumstances", prenup.get("changed_circumstances", []))           # NEW
     add_legal_metadata(pn_lines, prenup)
     add_section("prenup_postnup", pn_lines)
 
     overall_impact = summary.get("overall_impact_analysis", {}) or {}
     if isinstance(overall_impact, dict):
         impact_lines = []
-        # Capture the description string (was previously dropped)
         desc = overall_impact.get("description", "")
+        if isinstance(desc, list):                                                                          # FIX: handle corrupted list
+            desc = desc[0] if desc else ""
         if is_meaningful(str(desc)):
             impact_lines.append("### Overall Impact Analysis")
             impact_lines.append(f"  • {str(desc).strip()}")
@@ -294,8 +319,6 @@ def summary_json_to_sections(summary: dict, *, include_outcome_reasons: bool = T
         add_grouped_items(rationale_lines, "Reasons & Rationale", summary.get("reasons_rationale", []))
         add_section("reasons_rationale", rationale_lines)
 
-        
-    # print(f"DEBUG - Converted summary to sections: {sections}")
     return sections
 
 def _iter_list_nodes(summary: dict):
@@ -422,5 +445,5 @@ def generate_summary_dict(
         return summary
     except Exception as e:
         raise e
-    
+
 

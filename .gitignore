@@ -36,4 +36,5 @@ dist-ssr
 
 test_*
 **/test_*
-
+build_embeddings_test.py
+law-ai-backend/scripts/pull_austlii_cases.py
