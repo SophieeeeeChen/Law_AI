@@ -337,11 +337,11 @@ def _summary_word_limits(case_text: str) -> Tuple[int, int]:
     elif input_words < 10_000:
         return 1_200, 1_800
     elif input_words < 25_000:
-        return 1_600, 2_200
+        return 1_600, 2_500
     elif input_words < 50_000:
-        return 2_000, 2_800
+        return 2_200, 2_800
     else:                        
-        return 2_500, 3_500
+        return 2_800, 3_500
 
 def generate_summary_dict(
     case_text: str,

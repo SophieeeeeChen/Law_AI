@@ -173,9 +173,19 @@ def parse_year_range(years_str: str) -> list[int]:
     return sorted(set(years))
 
 
-def build_rtf_url(court: str, year: int, number: int) -> str:
-    """Direct RTF URL — this is the pattern that works (same as the original script)."""
-    return f"https://www.austlii.edu.au/au/cases/cth/{court}/{year}/{number}.rtf"
+def build_html_url(court: str, year: int, number: int) -> str:
+    """AustLII HTML viewdoc URL — produces clean text via BeautifulSoup."""
+    return f"https://www.austlii.edu.au/cgi-bin/viewdoc/au/cases/cth/{court}/{year}/{number}.html"
+
+
+def extract_text_from_html(html_content: str) -> str:
+    """Extract clean case text from AustLII HTML page using BeautifulSoup."""
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(html_content, "html.parser")
+    content = soup.find("article") or soup.find(class_="document") or soup.find("body")
+    if not content:
+        return ""
+    return content.get_text(separator="\n", strip=True)
 
 
 def build_case_id(court: str, year: int, number: int) -> str:
@@ -249,7 +259,7 @@ def download_court_year(
 ) -> dict:
     """
     Download all cases for a court/year by incrementing case number from 1.
-    Downloads RTF from direct URL, converts to Markdown via Pandoc.
+    Fetches HTML from AustLII viewdoc URL, extracts clean text via BeautifulSoup.
     Stops after max_consecutive_404 consecutive 404 responses.
     """
     stats = {"downloaded": 0, "converted": 0, "skipped": 0, "failed": 0}
@@ -271,30 +281,18 @@ def download_court_year(
             consecutive_404 = 0
             continue
 
-        url = build_rtf_url(court, year, case_number)
+        url = build_html_url(court, year, case_number)
 
         try:
-            response = requests.get(url, headers=HEADERS, timeout=30, verify=False)
+            response = requests.get(url, headers=HEADERS, timeout=60, verify=False)
 
             if response.status_code == 200:
-                # Check if we actually got RTF (not HTML from a proxy/redirect)
-                content_type = response.headers.get('Content-Type', '')
-                if 'text/html' in content_type:
-                    consecutive_404 = 0
-                    logger.warning("  [⚠️] Got HTML instead of RTF for %s (proxy/redirect?)", case_id)
-                    log_pull_failure(case_id, url, f"Got HTML instead of RTF (Content-Type: {content_type})")
-                    stats["failed"] += 1
-                    case_number += 1
-                    time.sleep(REQUEST_DELAY_SECONDS)
-                    continue
-
                 consecutive_404 = 0
                 stats["downloaded"] += 1
 
-                # Convert RTF → Markdown, then free memory
+                # Extract text from HTML
                 try:
-                    md_text = convert_rtf_to_md(response.content)
-                    md_text = clean_markdown(md_text) if md_text else md_text
+                    md_text = extract_text_from_html(response.text)
                     if md_text and len(md_text.strip()) > 100:
                         md_storage.write_text(md_path, md_text)
                         stats["converted"] += 1
@@ -302,14 +300,14 @@ def download_court_year(
                     else:
                         char_count = len(md_text) if md_text else 0
                         logger.warning("  [⚠️] Empty/short: %s (%d chars)", case_id, char_count)
-                        log_pull_failure(case_id, url, f"Empty conversion ({char_count} chars)")
+                        log_pull_failure(case_id, url, f"Empty extraction ({char_count} chars)")
                         stats["failed"] += 1
                 except Exception as e:
-                    logger.error("  [❌] Conversion failed: %s — %s", case_id, e)
-                    log_pull_failure(case_id, url, f"Conversion error: {e}")
+                    logger.error("  [❌] Extraction failed: %s — %s", case_id, e)
+                    log_pull_failure(case_id, url, f"Extraction error: {e}")
                     stats["failed"] += 1
                 finally:
-                    response.close()  # Free HTTP response + RTF bytes from memory
+                    response.close()
 
             elif response.status_code == 404:
                 consecutive_404 += 1
@@ -351,7 +349,7 @@ def download_court_year(
 def test_single_case(court: str = "FamCAFC", year: int = 2021, number: int = 1) -> None:
     """Debug: download one RTF and try converting it."""
     case_id = build_case_id(court, year, number)
-    url = build_rtf_url(court, year, number)
+    url = f"https://www.austlii.edu.au/au/cases/cth/{court}/{year}/{number}.rtf"
     print(f"Fetching: {url}")
 
     try:
