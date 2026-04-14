@@ -35,16 +35,20 @@ import requests
 
 try:
     import pypandoc
-    # Ensure pandoc binary is available
-    try:
-        pypandoc.get_pandoc_version()
-    except OSError:
-        print("Pandoc binary not found. Downloading...")
-        pypandoc.download_pandoc()
-        print("Pandoc installed successfully.")
 except ImportError:
-    print("ERROR: pypandoc not installed. Run: pip install pypandoc")
-    exit(1)
+    try:
+        import pypandoc_binary as pypandoc
+    except ImportError:
+        print("ERROR: pypandoc not installed. Run: pip install pypandoc_binary")
+        exit(1)
+
+# Ensure pandoc binary is available
+try:
+    pypandoc.get_pandoc_version()
+except OSError:
+    print("Pandoc binary not found. Downloading...")
+    pypandoc.download_pandoc()
+    print("Pandoc installed successfully.")
 
 # Suppress InsecureRequestWarning (verify=False for corporate proxies like Zscaler)
 import urllib3
