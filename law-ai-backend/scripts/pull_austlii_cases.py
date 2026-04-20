@@ -65,7 +65,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(
 # Config
 # ─────────────────────────────────────────────
 
-DEFAULT_STORAGE = os.environ.get("AUSTLII_STORAGE", "local")
+DEFAULT_STORAGE = os.environ.get("AUSTLII_STORAGE", "azure")
 AZURE_CONN_STR = os.environ.get("AZURE_STORAGE_CONNECTION_STRING", "")
 BLOB_CONTAINER_MD = os.environ.get("AUSTLII_BLOB_CONTAINER_MD", "austlii-cases-md")
 REQUEST_DELAY_SECONDS = int(os.environ.get("AUSTLII_REQUEST_DELAY", "3"))
@@ -97,11 +97,33 @@ HEADERS = {
 }
 
 
+_failure_log_lines: list[str] = []
+
+
 def log_pull_failure(case_id: str, url: str, error_message: str) -> None:
+    """Append failure to local log file AND buffer for later blob upload."""
     os.makedirs(os.path.dirname(FAILED_LOG_PATH), exist_ok=True)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    line = f"[{timestamp}] CASE: {case_id} | URL: {url} | ERROR: {error_message}\n"
+    _failure_log_lines.append(line)
     with open(FAILED_LOG_PATH, "a", encoding="utf-8") as f:
-        f.write(f"[{timestamp}] CASE: {case_id} | URL: {url} | ERROR: {error_message}\n")
+        f.write(line)
+
+
+def flush_failure_log_to_blob(md_storage: "StorageBackend", court: str, year: int) -> None:
+    """Write buffered failure lines to blob storage (call after each court/year)."""
+    if not _failure_log_lines:
+        return
+    if not isinstance(md_storage, AzureBlobStorage):
+        return
+    blob_path = f"_logs/failed_pull_{court}_{year}.log"
+    content = "".join(_failure_log_lines)
+    try:
+        md_storage.write_text(blob_path, content)
+        logger.info("  Failure log uploaded to blob: %s (%d entries)", blob_path, len(_failure_log_lines))
+    except Exception as e:
+        logger.error("  Failed to upload failure log to blob: %s", e)
+    _failure_log_lines.clear()
 
 
 # ─────────────────────────────────────────────
@@ -495,6 +517,7 @@ if __name__ == "__main__":
 
         for year in years:
             stats = download_court_year(court, year, md_backend, max_consecutive_404=max_404)
+            flush_failure_log_to_blob(md_backend, court, year)
             for key in total_stats:
                 total_stats[key] += stats[key]
 

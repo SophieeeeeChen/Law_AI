@@ -48,7 +48,7 @@ SUMMARY_LIST_LIMITS_PRIMARY = {
     "allegations": 10,
     "expert_evidence": 10,
     "best_interests": 10,
-    "tactical_behavior_patterns": 10,
+    "notable_conduct_and_judicial_commentary": 10,
     "orders": 10,
     "incidents": 10,
     "protection_orders": 8,
@@ -249,10 +249,10 @@ def summary_json_to_sections(summary: dict, *, include_outcome_reasons: bool = T
     add_legal_metadata(parenting_lines, parenting)
     add_section("children_parenting", parenting_lines)
 
-    # --- 3b. TACTICAL BEHAVIOR PATTERNS (standalone for focused RAG retrieval) ---
-    tactical_lines = []
-    add_grouped_items(tactical_lines, "Tactical Behavior Patterns", parenting.get("tactical_behavior_patterns", []))
-    add_section("tactical_behavior_patterns", tactical_lines)
+    # --- 3b. NOTABLE CONDUCT & JUDICIAL COMMENTARY (standalone for focused RAG retrieval) ---
+    conduct_lines = []
+    add_grouped_items(conduct_lines, "Notable Conduct & Judicial Commentary", parenting.get("notable_conduct_and_judicial_commentary", []))
+    add_section("notable_conduct_and_judicial_commentary", conduct_lines)
 
     # --- 4. SPOUSAL MAINTENANCE ---
     sm = summary.get("spousal_maintenance", {}) or {}

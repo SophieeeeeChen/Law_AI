@@ -38,3 +38,14 @@ test_*
 **/test_*
 build_embeddings_test.py
 law-ai-backend/scripts/pull_austlii_cases.py
+law-ai-backend/logs/record_cost_gemini.json
+law-ai-backend/logs/record_cost_gemini.json
+law-ai-backend/logs/record_cost_gemini.json
+law-ai-backend/logs/record_cost_gemini.json
+law-ai-backend/logs/record_cost_gemini.json
+law-ai-backend/out_summaries/case_summaries_gemini_v3_test.jsonl
+law-ai-backend/out_summaries/case_summaries_gemini_v3_conduct_patch.jsonl
+law-ai-backend/logs/record_cost_gemini.json
+law-ai-backend/logs/record_cost_gemini.json
+law-ai-backend/out_summaries/case_summaries_gemini_v3_2020_conduct_patch.jsonl
+law-ai-backend/logs/record_cost_gemini.json
